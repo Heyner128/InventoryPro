@@ -1,6 +1,7 @@
 package me.heyner.inventorypro.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,6 +16,8 @@ public class SKU {
     @GeneratedValue
     private Long id;
 
+    @NotBlank(message = "SKU name can't be blank")
+    @Column(unique = true, nullable = false)
     private String sku;
 
     @ManyToOne
