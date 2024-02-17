@@ -3,6 +3,7 @@ package me.heyner.inventorypro.service;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
 import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.repository.ProductRepository;
+import org.apache.coyote.ProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,11 +32,11 @@ public class ProductService {
         return product;
     }
 
-    public Optional<Product> findById(Long id) {
+    public Product findById(Long id) throws ProductNotFoundException {
         Optional<Product> product = productRepository.findById(id);
         logger.info("Searching for product with the id " + id);
         logger.info("Product with the id " + id + " " + (product.isEmpty()?"Not":"") + " found");
-        return product;
+        return product.orElseThrow(() -> new ProductNotFoundException("Product " + id + " not found"));
     }
 
     public List<Product> findByName(String name) {
@@ -53,22 +54,23 @@ public class ProductService {
     }
 
 
-    public Product updateProduct(Product updatedProduct) throws ProductNotFoundException {
-        Product productToSave = findById(updatedProduct.getId())
-                .orElseThrow(() -> new ProductNotFoundException("Product "+ updatedProduct +" not found"));
-        productRepository.save(productToSave);
-        logger.info("Product " + productToSave + " successfully saved");
-        return productToSave;
+    public void updateProduct(Product product) throws ProductNotFoundException {
+        Product productToUpdate = findById(product.getId());
+        productRepository.save(product);
+        logger.info("Product " +
+                productToUpdate.getName() +
+                " successfully updated to " +
+                product.getName()
+            );
     }
 
 
     public void deleteProduct(Long id) throws ProductNotFoundException {
-        Product productToDelete = findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product "+ id +" not found"));
+        Product productToDelete = findById(id);
 
         productRepository.delete(productToDelete);
 
-        logger.info("Product " + productToDelete + " successfully deleted");
+        logger.info("Product " + productToDelete.getName() + " successfully deleted");
     }
 
 
