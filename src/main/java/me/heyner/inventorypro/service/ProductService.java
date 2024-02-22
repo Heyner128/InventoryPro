@@ -3,11 +3,12 @@ package me.heyner.inventorypro.service;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
 import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.repository.ProductRepository;
-import org.apache.coyote.ProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,46 +23,48 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Product createProduct(String name, String description, String brand) {
-        Product product = new Product();
-        product.setName(name);
-        product.setDescription(description);
-        product.setBrand(brand);
+    public List<Product> getAllProducts() {
+        Iterator<Product> productIterator = productRepository.findAll().iterator();
+        List<Product> products = new ArrayList<>();
+        while(productIterator.hasNext()) {
+            products.add(productIterator.next());
+        }
+        return products;
+    }
+
+    public Product createProduct(Product product) {
         productRepository.save(product);
-        logger.info(name + " Product successfully created");
+        logger.info("{} Product successfully created", product.getName());
         return product;
     }
 
     public Product findById(Long id) throws ProductNotFoundException {
         Optional<Product> product = productRepository.findById(id);
-        logger.info("Searching for product with the id " + id);
-        logger.info("Product with the id " + id + " " + (product.isEmpty()?"Not":"") + " found");
-        return product.orElseThrow(() -> new ProductNotFoundException("Product " + id + " not found"));
+        logger.info("Searching for product with the id {}", id);
+        logger.info("Product with the id {} {} found", id, (product.isEmpty()?"Not":""));
+        return product.orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     public List<Product> findByName(String name) {
         List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
-        logger.info("Searching for products containing the name " + name);
-        logger.info(products.size() + " product" + (products.size()>1?"s":"") + " found");
+        logger.info("Searching for products containing the name {}", name);
+        logger.info("{} product{} found",products.size() ,(products.size()>1?"s":""));
         return products;
     }
 
     public List<Product> findByBrand(String name) {
         List<Product> products = productRepository.findByBrandContainingIgnoreCase(name);
-        logger.info("Searching for products containing the brand " + name);
-        logger.info(products.size() + " product" + (products.size()>1?"s":"") + " found");
+        logger.info("Searching for products containing the brand {}", name);
+        logger.info("{} product{} found",products.size() ,(products.size()>1?"s":""));
         return products;
     }
 
 
-    public void updateProduct(Product product) throws ProductNotFoundException {
+    public Product updateProduct(Product product) throws ProductNotFoundException {
         Product productToUpdate = findById(product.getId());
         productRepository.save(product);
-        logger.info("Product " +
-                productToUpdate.getName() +
-                " successfully updated to " +
-                product.getName()
-            );
+        logger.info("Product {} successfully updated ", product.getName());
+        return product;
     }
 
 
@@ -70,7 +73,7 @@ public class ProductService {
 
         productRepository.delete(productToDelete);
 
-        logger.info("Product " + productToDelete.getName() + " successfully deleted");
+        logger.info("Product {} successfully deleted", productToDelete.getName());
     }
 
 

@@ -1,6 +1,8 @@
 package me.heyner.inventorypro.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,6 +12,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -18,9 +21,10 @@ import java.util.Set;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"product", "name"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "name"}))
 public class Option {
 
+    @JsonIgnore
     @Id
     @GeneratedValue
     private Long id;
@@ -32,19 +36,25 @@ public class Option {
     @NotNull(message = "An option should have an associated product")
     private Product product;
 
-    @OneToMany(mappedBy = "option", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "option")
     @ToString.Exclude
-    private Set<OptionValue> values;
+    private List<OptionValue> values;
 
     @OneToMany(mappedBy = "option", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private Set<SKUValue> skuValues;
+    private List<SKUValue> skuValues;
 
     @CreatedDate
     private LocalDate createdDate;
 
     @UpdateTimestamp
     private LocalDate updateDate;
+
+
+    @JsonProperty("id")
+    public final int getIndex() {
+        return product.getOptions().indexOf(this);
+    }
 
     @Override
     public final boolean equals(Object o) {

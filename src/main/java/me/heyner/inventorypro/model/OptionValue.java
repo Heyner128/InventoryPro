@@ -1,5 +1,7 @@
 package me.heyner.inventorypro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -8,6 +10,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,10 +19,11 @@ import java.util.Set;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option", "value"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "value"}))
 public class OptionValue {
     @Id
     @GeneratedValue
+    @JsonIgnore
     private Long id;
 
     @NotBlank(message = "The option value can't be blank")
@@ -30,13 +34,18 @@ public class OptionValue {
 
     @OneToMany(mappedBy = "optionValue", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private Set<SKUValue> skuValues;
+    private List<SKUValue> skuValues;
 
     @CreatedDate
     private LocalDate createdDate;
 
     @UpdateTimestamp
     private LocalDate updateDate;
+
+    @JsonProperty("id")
+    public final int getIndex() {
+        return option.getValues().indexOf(this);
+    }
 
     @Override
     public final boolean equals(Object o) {

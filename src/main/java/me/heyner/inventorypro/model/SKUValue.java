@@ -1,5 +1,7 @@
 package me.heyner.inventorypro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -19,10 +21,11 @@ import java.util.Objects;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"sku", "option", "optionValue"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"sku_id", "option_id", "optionValue_id"}))
 public class SKUValue {
     @Id
     @GeneratedValue
+    @JsonIgnore
     private Long id;
 
     @ManyToOne
@@ -51,6 +54,11 @@ public class SKUValue {
 
     @UpdateTimestamp
     private LocalDate updateDate;
+
+    @JsonProperty("id")
+    public final int getIndex() {
+        return sku.getValues().indexOf(this);
+    }
 
     @Override
     public final boolean equals(Object o) {

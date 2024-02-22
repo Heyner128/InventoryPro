@@ -1,51 +1,33 @@
 package me.heyner.inventorypro.model;
 
-
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Product {
+public class ApplicationUser {
+
     @Id
     @GeneratedValue
     private Long id;
 
-    @NotBlank(message = "The name of a product can't be empty")
-    @Column(unique = true, nullable = false)
-    private String name;
+    @NotBlank(message = "The username can't be empty")
+    private String username;
 
-    @NotBlank(message = "The description of a product can't be empty")
-    private String description;
+    @NotBlank(message = "The password can't be empty")
+    private String password;
 
-    @NotBlank(message = "The brand of a product can't be empty")
-    private String brand;
-
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Option> options;
-
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<SKU> skus;
-
-    @CreatedDate
-    private LocalDate createdDate;
-
-    @UpdateTimestamp
-    private LocalDate updateDate;
+    @NotBlank(message = "The authority can't be empty")
+    private String authority;
 
     @Override
     public final boolean equals(Object o) {
@@ -54,8 +36,8 @@ public class Product {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Product product = (Product) o;
-        return getId() != null && Objects.equals(getId(), product.getId());
+        ApplicationUser applicationUser = (ApplicationUser) o;
+        return getId() != null && Objects.equals(getId(), applicationUser.getId());
     }
 
     @Override
