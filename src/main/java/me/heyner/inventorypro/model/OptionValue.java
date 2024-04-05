@@ -12,22 +12,21 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "value"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "name"}))
 public class OptionValue {
     @Id
     @GeneratedValue
     @JsonIgnore
     private Long id;
 
-    @NotBlank(message = "The option value can't be blank")
-    private String value;
+    @NotBlank(message = "The option value name can't be blank")
+    private String name;
 
     @ManyToOne
     private Option option;

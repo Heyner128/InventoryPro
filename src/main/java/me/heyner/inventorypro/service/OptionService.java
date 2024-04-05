@@ -76,13 +76,13 @@ public class OptionService {
         Option option = getOption(productId, optionIndex);
         optionValue.setOption(option);
         optionValuesRepository.save(optionValue);
-        logger.info("Option value {} successfully added to option {}", optionValue.getValue(), option.getName());
+        logger.info("Option value {} successfully added to option {}", optionValue.getName(), option.getName());
         return optionValue;
     }
 
     public OptionValue getOptionValue(Long productId, int optionIndex, int optionValueIndex) {
         OptionValue optionValue = getOption(productId, optionIndex).getValues().get(optionValueIndex);
-        logger.info("Getting value {} for option index {} and product id {}", optionValue.getValue(), optionIndex, productId);
+        logger.info("Getting value {} for option index {} and product id {}", optionValue.getName(), optionIndex, productId);
 
         return optionValue;
     }
@@ -91,13 +91,13 @@ public class OptionService {
         OptionValue optionValueToUpdate = getOptionValue(productId, optionIndex, optionValue.getIndex());
         optionValue.setId(optionValueToUpdate.getId());
         optionValuesRepository.save(optionValue);
-        logger.info("Value {} for option index {} and product id {} successfully updated", optionValue.getValue(), optionIndex, productId);
+        logger.info("Value {} for option index {} and product id {} successfully updated", optionValue.getName(), optionIndex, productId);
         return optionValue;
     }
 
     public void removeOptionValue(Long productId, int optionIndex, int optionValueIndex) {
         OptionValue optionValue = getOptionValue(productId,optionIndex, optionValueIndex);
         optionValuesRepository.delete(optionValue);
-        logger.info("Value {} for option index {} and product id {} successfully removed", optionValue.getValue(), optionIndex, productId);
+        logger.info("Value {} for option index {} and product id {} successfully removed", optionValue.getName(), optionIndex, productId);
     }
 }
