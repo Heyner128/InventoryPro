@@ -11,7 +11,7 @@ public class OptionNotFoundException extends RuntimeException{
 
     public OptionNotFoundException(String message) { super(message);}
 
-    public OptionNotFoundException(Long optionId) {super("Option with the id " + optionId + "not found");}
+    public OptionNotFoundException(Long optionId) {super("Option with the id " + optionId + " not found");}
 
     public OptionNotFoundException(Option option) {
         super("Option " + option + " not found");

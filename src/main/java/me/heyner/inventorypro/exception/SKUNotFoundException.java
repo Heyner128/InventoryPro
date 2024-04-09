@@ -10,7 +10,7 @@ public class SKUNotFoundException extends RuntimeException{
 
     public SKUNotFoundException(String message) { super(message);}
 
-    public SKUNotFoundException(Long skuId) {super("SKU with the id " + skuId + "not found");}
+    public SKUNotFoundException(Long skuId) {super("SKU with the id " + skuId + " not found");}
 
     public SKUNotFoundException(SKU sku) {
         super("SKU " + sku + " not found");
