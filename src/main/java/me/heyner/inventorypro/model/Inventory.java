@@ -1,17 +1,19 @@
 package me.heyner.inventorypro.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Entity
@@ -19,34 +21,25 @@ import java.util.Objects;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "name"}))
-public class Option {
-
+public class Inventory {
   @JsonIgnore @Id @GeneratedValue private Long id;
 
-  @NotBlank(message = "The name of an option can't be empty")
+  @NotBlank(message = "The name of an inventory cannot be empty")
   private String name;
 
-  @ManyToOne
-  @NotNull(message = "An option should have an associated product")
-  private Product product;
+  @ElementCollection
+  @CollectionTable(
+      name = "inventory_quantity",
+      joinColumns = @JoinColumn(name = "inventory_id", referencedColumnName = "id"))
+  @Column(name = "quantity")
+  @MapKeyJoinColumn(name = "sku_id", referencedColumnName = "id")
+  private Map<SKU, Integer> items;
 
-  @OneToMany(mappedBy = "option")
-  @ToString.Exclude
-  private List<OptionValue> values;
-
-  @OneToMany(mappedBy = "option", fetch = FetchType.LAZY)
-  @ToString.Exclude
-  private List<SKUValue> skuValues;
+  @ManyToOne @NotNull private ApplicationUser user;
 
   @CreatedDate private LocalDate createdDate;
 
   @UpdateTimestamp private LocalDate updateDate;
-
-  @JsonProperty("id")
-  public final int getIndex() {
-    return product.getOptions().indexOf(this);
-  }
 
   @Override
   public final boolean equals(Object o) {

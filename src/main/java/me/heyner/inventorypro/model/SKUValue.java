@@ -21,58 +21,63 @@ import java.util.Objects;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"sku_id", "option_id", "optionValue_id"}))
+@Table(
+    uniqueConstraints = @UniqueConstraint(columnNames = {"sku_id", "option_id", "option_value_id"}))
 public class SKUValue {
-    @Id
-    @GeneratedValue
-    @JsonIgnore
-    private Long id;
+  @Id @GeneratedValue @JsonIgnore private Long id;
 
-    @ManyToOne
-    private SKU sku;
+  @ManyToOne private SKU sku;
 
-    @DecimalMin(value = "0.0", inclusive = false, message = "The cost price should be positive")
-    @Digits(integer = 20, fraction = 2, message = "The cost price can't have more than 20 integer digits or more then 2 decimal digits")
-    private BigDecimal costPrice;
+  @DecimalMin(value = "0.0", inclusive = false, message = "The cost price should be positive")
+  @Digits(
+      integer = 20,
+      fraction = 2,
+      message =
+          "The cost price can't have more than 20 integer digits or more then 2 decimal digits")
+  private BigDecimal costPrice;
 
-    @NotNull
-    @Min(0)
-    private Long amountAvailable;
+  @NotNull
+  @Min(0)
+  private Long amountAvailable;
 
-    @NotNull
-    @Min(0)
-    private int marginPercentage;
+  @NotNull
+  @Min(0)
+  private int marginPercentage;
 
-    @ManyToOne
-    private Option option;
+  @ManyToOne private Option option;
 
-    @ManyToOne
-    private OptionValue optionValue;
+  @ManyToOne private OptionValue optionValue;
 
-    @CreatedDate
-    private LocalDate createdDate;
+  @CreatedDate private LocalDate createdDate;
 
-    @UpdateTimestamp
-    private LocalDate updateDate;
+  @UpdateTimestamp private LocalDate updateDate;
 
-    @JsonProperty("id")
-    public final int getIndex() {
-        return sku.getValues().indexOf(this);
-    }
+  @JsonProperty("id")
+  public final int getIndex() {
+    return sku.getValues().indexOf(this);
+  }
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        SKUValue skuValue = (SKUValue) o;
-        return getId() != null && Objects.equals(getId(), skuValue.getId());
-    }
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass =
+        o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+    Class<?> thisEffectiveClass =
+        this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    SKUValue skuValue = (SKUValue) o;
+    return getId() != null && Objects.equals(getId(), skuValue.getId());
+  }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
+  }
 }

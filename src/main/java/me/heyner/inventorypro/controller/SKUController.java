@@ -55,18 +55,18 @@ public class SKUController {
         return skuService.addValue(productId, skuIndex, skuValue);
     }
 
-    @GetMapping("products/{productId}/skus/{skuIndex}/values/{skuValueIndex}")
+    @GetMapping("/products/{productId}/skus/{skuIndex}/values/{skuValueIndex}")
     public SKUValue getSKUValue(@PathVariable Long productId, @PathVariable int skuIndex, @PathVariable int skuValueIndex) {
         return skuService.getSKUValue(productId, skuIndex, skuValueIndex);
     }
 
-    @PutMapping("products/{productId}/skus/{skuIndex}/values/{skuValueIndex}")
+    @PutMapping("/products/{productId}/skus/{skuIndex}/values/{skuValueIndex}")
     public SKUValue updateSKUValue(@PathVariable Long productId, @PathVariable int skuIndex,@PathVariable int skuValueIndex, @RequestBody @Valid SKUValue skuValue) {
         if(skuValueIndex != skuValue.getIndex()) throw new ConflictingIndexesException();
         return skuService.updateSKUValue(productId, skuIndex, skuValue);
     }
 
-    @DeleteMapping("products/{productId}/skus/{skuIndex}/values/{skuValueIndex}")
+    @DeleteMapping("/products/{productId}/skus/{skuIndex}/values/{skuValueIndex}")
     public void deleteSKUValue(@PathVariable Long productId, @PathVariable int skuIndex, @PathVariable int skuValueIndex) {
         skuService.removeSKUValue(productId, skuIndex, skuValueIndex);
     }

@@ -17,87 +17,114 @@ import java.util.List;
 @Service
 public class OptionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OptionService.class);
+  private static final Logger logger = LoggerFactory.getLogger(OptionService.class);
 
-    private final OptionRepository optionRepository;
+  private final OptionRepository optionRepository;
 
-    private final OptionValuesRepository optionValuesRepository;
+  private final OptionValuesRepository optionValuesRepository;
 
-    private final ProductService productService;
+  private final ProductService productService;
 
-    public OptionService(OptionRepository optionRepository, ProductService productService,
-                         ProductRepository productRepository, OptionValuesRepository optionValuesRepository) {
-        this.optionRepository = optionRepository;
-        this.productService = productService;
-        this.optionValuesRepository = optionValuesRepository;
+  public OptionService(
+      OptionRepository optionRepository,
+      ProductService productService,
+      ProductRepository productRepository,
+      OptionValuesRepository optionValuesRepository) {
+    this.optionRepository = optionRepository;
+    this.productService = productService;
+    this.optionValuesRepository = optionValuesRepository;
+  }
+
+  public Option addOption(Long productId, Option option) throws ProductNotFoundException {
+    Product product = productService.findById(productId);
+    optionRepository.save(option);
+    logger.info("New option {} added to product {}", option.getName(), product.getName());
+    return option;
+  }
+
+  public Option getOption(Long productId, int index) throws OptionNotFoundException {
+    try {
+      Option option = optionRepository.findByProduct_Id(productId).get(index);
+      logger.info("Getting option number {} of product with the id {}", index, productId);
+
+      return option;
+    } catch (IndexOutOfBoundsException ex) {
+      throw new OptionNotFoundException((long) index);
     }
+  }
 
-    public Option addOption(Long productId, Option option) throws ProductNotFoundException {
-        Product product = productService.findById(productId);
-        optionRepository.save(option);
-        logger.info("New option {} added to product {}", option.getName(), product.getName());
-        return option;
-    }
+  public List<Option> getOptionsByProductId(Long productId) throws ProductNotFoundException {
+    List<Option> options = optionRepository.findByProduct_Id(productId);
+    logger.info("Getting {} options, for product {}", options.size(), productId);
+    return options;
+  }
 
-    public Option getOption(Long productId, int index) throws OptionNotFoundException {
-        try {
-            Option option = optionRepository.findByProduct_Id(productId).get(index);
-            logger.info("Getting option number {} of product with the id {}", index, productId);
+  public Option updateOption(Long productId, Option option) throws OptionNotFoundException {
+    Option optionToUpdate = getOption(productId, option.getIndex());
+    option.setId(optionToUpdate.getId());
+    optionRepository.save(option);
+    logger.info(
+        "Option {} of product {} updated to {}",
+        optionToUpdate.getName(),
+        productId,
+        option.getName());
 
-            return option;
-        } catch (IndexOutOfBoundsException ex) {
-            throw new OptionNotFoundException((long) index);
-        }
-    }
+    return option;
+  }
 
-    public List<Option> getOptionsByProductId(Long productId) throws ProductNotFoundException {
-        List<Option> options = optionRepository.findByProduct_Id(productId);
-        logger.info("Getting {} options, for product {}", options.size(), productId);
-        return options;
-    }
+  public void removeOption(Long productId, int index)
+      throws ProductNotFoundException, OptionNotFoundException {
+    Option optionToRemove = getOption(productId, index);
 
-    public Option updateOption (Long productId, Option option) throws OptionNotFoundException {
-        Option optionToUpdate = getOption(productId, option.getIndex());
-        option.setId(optionToUpdate.getId());
-        optionRepository.save(option);
-        logger.info("Option {} of product {} updated to {}", optionToUpdate.getName(), productId, option.getName());
+    optionRepository.delete(optionToRemove);
+    logger.info(
+        "Option {} of product {} successfully deleted",
+        optionToRemove.getName(),
+        optionToRemove.getProduct().getName());
+  }
 
-        return option;
-    }
+  public OptionValue addValue(Long productId, int optionIndex, OptionValue optionValue) {
+    Option option = getOption(productId, optionIndex);
+    optionValue.setOption(option);
+    optionValuesRepository.save(optionValue);
+    logger.info(
+        "Option value {} successfully added to option {}",
+        optionValue.getValue(),
+        option.getName());
+    return optionValue;
+  }
 
-    public void removeOption(Long productId, int index) throws ProductNotFoundException, OptionNotFoundException {
-        Option optionToRemove = getOption(productId, index);
+  public OptionValue getOptionValue(Long productId, int optionIndex, int optionValueIndex) {
+    OptionValue optionValue = getOption(productId, optionIndex).getValues().get(optionValueIndex);
+    logger.info(
+        "Getting value {} for option index {} and product id {}",
+        optionValue.getValue(),
+        optionIndex,
+        productId);
 
-        optionRepository.delete(optionToRemove);
-        logger.info("Option {} of product {} successfully deleted", optionToRemove.getName(), optionToRemove.getProduct().getName());
-    }
+    return optionValue;
+  }
 
-    public OptionValue addValue(Long productId, int optionIndex, OptionValue optionValue) {
-        Option option = getOption(productId, optionIndex);
-        optionValue.setOption(option);
-        optionValuesRepository.save(optionValue);
-        logger.info("Option value {} successfully added to option {}", optionValue.getValue(), option.getName());
-        return optionValue;
-    }
+  public OptionValue updateOptionValue(Long productId, int optionIndex, OptionValue optionValue) {
+    OptionValue optionValueToUpdate =
+        getOptionValue(productId, optionIndex, optionValue.getIndex());
+    optionValue.setId(optionValueToUpdate.getId());
+    optionValuesRepository.save(optionValue);
+    logger.info(
+        "Value {} for option index {} and product id {} successfully updated",
+        optionValue.getValue(),
+        optionIndex,
+        productId);
+    return optionValue;
+  }
 
-    public OptionValue getOptionValue(Long productId, int optionIndex, int optionValueIndex) {
-        OptionValue optionValue = getOption(productId, optionIndex).getValues().get(optionValueIndex);
-        logger.info("Getting value {} for option index {} and product id {}", optionValue.getValue(), optionIndex, productId);
-
-        return optionValue;
-    }
-
-    public OptionValue updateOptionValue(Long productId, int optionIndex, OptionValue optionValue) {
-        OptionValue optionValueToUpdate = getOptionValue(productId, optionIndex, optionValue.getIndex());
-        optionValue.setId(optionValueToUpdate.getId());
-        optionValuesRepository.save(optionValue);
-        logger.info("Value {} for option index {} and product id {} successfully updated", optionValue.getValue(), optionIndex, productId);
-        return optionValue;
-    }
-
-    public void removeOptionValue(Long productId, int optionIndex, int optionValueIndex) {
-        OptionValue optionValue = getOptionValue(productId,optionIndex, optionValueIndex);
-        optionValuesRepository.delete(optionValue);
-        logger.info("Value {} for option index {} and product id {} successfully removed", optionValue.getValue(), optionIndex, productId);
-    }
+  public void removeOptionValue(Long productId, int optionIndex, int optionValueIndex) {
+    OptionValue optionValue = getOptionValue(productId, optionIndex, optionValueIndex);
+    optionValuesRepository.delete(optionValue);
+    logger.info(
+        "Value {} for option index {} and product id {} successfully removed",
+        optionValue.getValue(),
+        optionIndex,
+        productId);
+  }
 }

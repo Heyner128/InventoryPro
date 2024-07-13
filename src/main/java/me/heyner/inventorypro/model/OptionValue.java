@@ -21,45 +21,47 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "value"}))
 public class OptionValue {
-    @Id
-    @GeneratedValue
-    @JsonIgnore
-    private Long id;
+  @Id @GeneratedValue @JsonIgnore private Long id;
 
-    @NotBlank(message = "The option value can't be blank")
-    private String value;
+  @NotBlank(message = "The option value can't be blank")
+  private String value;
 
-    @ManyToOne
-    private Option option;
+  @ManyToOne private Option option;
 
-    @OneToMany(mappedBy = "optionValue", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<SKUValue> skuValues;
+  @OneToMany(mappedBy = "optionValue", fetch = FetchType.LAZY)
+  @ToString.Exclude
+  private List<SKUValue> skuValues;
 
-    @CreatedDate
-    private LocalDate createdDate;
+  @CreatedDate private LocalDate createdDate;
 
-    @UpdateTimestamp
-    private LocalDate updateDate;
+  @UpdateTimestamp private LocalDate updateDate;
 
-    @JsonProperty("id")
-    public final int getIndex() {
-        return option.getValues().indexOf(this);
-    }
+  @JsonProperty("id")
+  public final int getIndex() {
+    return option.getValues().indexOf(this);
+  }
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        OptionValue that = (OptionValue) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
-    }
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass =
+        o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+    Class<?> thisEffectiveClass =
+        this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    OptionValue that = (OptionValue) o;
+    return getId() != null && Objects.equals(getId(), that.getId());
+  }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
+  }
 }

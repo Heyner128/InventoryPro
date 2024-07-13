@@ -10,45 +10,24 @@ import java.util.List;
 
 public class ApplicationUserAdapter implements UserDetails {
 
-    private final ApplicationUser applicationUser;
+  private final ApplicationUser applicationUser;
 
-    public ApplicationUserAdapter(ApplicationUser applicationUser) {
-        this.applicationUser = applicationUser;
-    }
+  public ApplicationUserAdapter(ApplicationUser applicationUser) {
+    this.applicationUser = applicationUser;
+  }
 
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(applicationUser.getAuthority()));
+  }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(applicationUser.getAuthority()));
-    }
+  @Override
+  public String getPassword() {
+    return applicationUser.getPassword();
+  }
 
-    @Override
-    public String getPassword() {
-        return applicationUser.getPassword();
-    }
-
-    @Override
-    public String getUsername() {
-        return applicationUser.getUsername();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+  @Override
+  public String getUsername() {
+    return applicationUser.getUsername();
+  }
 }

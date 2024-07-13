@@ -19,46 +19,48 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 public class SKU {
-    @Id
-    @GeneratedValue
-    @JsonIgnore
-    private Long id;
+  @Id @GeneratedValue @JsonIgnore private Long id;
 
-    @NotBlank(message = "SKU name can't be blank")
-    @Column(unique = true, nullable = false)
-    private String sku;
+  @NotBlank(message = "SKU name can't be blank")
+  @Column(unique = true, nullable = false)
+  private String sku;
 
-    @ManyToOne
-    private Product product;
+  @ManyToOne private Product product;
 
-    @OneToMany(mappedBy = "sku")
-    @ToString.Exclude
-    private List<SKUValue> values;
+  @OneToMany(mappedBy = "sku")
+  @ToString.Exclude
+  private List<SKUValue> values;
 
-    @CreatedDate
-    private LocalDate createdDate;
+  @CreatedDate private LocalDate createdDate;
 
-    @UpdateTimestamp
-    private LocalDate updateDate;
+  @UpdateTimestamp private LocalDate updateDate;
 
-    @JsonProperty("id")
-    public final int getIndex() {
-        return product.getSkus().indexOf(this);
-    }
+  @JsonProperty("id")
+  public final int getIndex() {
+    return product.getSkus().indexOf(this);
+  }
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        SKU sku = (SKU) o;
-        return getId() != null && Objects.equals(getId(), sku.getId());
-    }
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass =
+        o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+    Class<?> thisEffectiveClass =
+        this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    SKU sku = (SKU) o;
+    return getId() != null && Objects.equals(getId(), sku.getId());
+  }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
+  }
 }
