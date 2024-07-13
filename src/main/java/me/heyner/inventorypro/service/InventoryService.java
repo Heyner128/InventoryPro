@@ -1,20 +1,15 @@
 package me.heyner.inventorypro.service;
 
-import me.heyner.inventorypro.adapter.ApplicationUserAdapter;
+import java.util.List;
 import me.heyner.inventorypro.exception.InventoryNotFoundException;
 import me.heyner.inventorypro.exception.UserNotFoundException;
-import me.heyner.inventorypro.model.ApplicationUser;
 import me.heyner.inventorypro.model.Inventory;
 import me.heyner.inventorypro.repository.InventoryRepository;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-
-import java.util.List;
 
 @Service
 public class InventoryService {
@@ -57,7 +52,7 @@ public class InventoryService {
   }
 
   public List<Inventory> getInventoriesByUsername(String username) throws UserNotFoundException {
-    UserDetails user = applicationUserService.loadUserByUsername(username);
+    var user = applicationUserService.loadUserByUsername(username);
     List<Inventory> inventories = inventoryRepository.findAllByUsername(username);
     logger.info("Getting {} inventories for user {}", inventories.size(), user);
     return inventories;

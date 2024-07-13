@@ -1,10 +1,9 @@
 package me.heyner.inventorypro.repository;
 
+import java.util.List;
 import me.heyner.inventorypro.model.Inventory;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
 
 public interface InventoryRepository extends CrudRepository<Inventory, Long> {
 

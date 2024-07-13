@@ -6,18 +6,24 @@ import me.heyner.inventorypro.exception.ConflictingIndexesException;
 import me.heyner.inventorypro.model.Inventory;
 import me.heyner.inventorypro.service.InventoryService;
 import org.modelmapper.ModelMapper;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class InventoryController {
 
-    private final InventoryService inventoryService;
+  private final InventoryService inventoryService;
 
-    private final ModelMapper modelMapper = new ModelMapper();
+  private final ModelMapper modelMapper = new ModelMapper();
 
-    public InventoryController(InventoryService inventoryService) {
-        this.inventoryService = inventoryService;
-    }
+  public InventoryController(InventoryService inventoryService) {
+    this.inventoryService = inventoryService;
+  }
 
   @PostMapping("/inventory")
   public Inventory createInventory(@RequestBody @Valid InventoryDto inventoryDto) {
@@ -34,12 +40,14 @@ public class InventoryController {
       @PathVariable int id, @RequestBody @Valid InventoryDto inventoryDto)
       throws ConflictingIndexesException {
     Inventory inventory = modelMapper.map(inventoryDto, Inventory.class);
-    if (inventory.getId() != id) throw new ConflictingIndexesException();
+    if (inventory.getId() != id) {
+      throw new ConflictingIndexesException();
+    }
     return inventoryService.updateInventory(inventory);
   }
 
   @DeleteMapping("/inventory/{id}")
   public void deleteInventory(@PathVariable int id) {
     inventoryService.deleteInventory((long) id);
-    }
+  }
 }

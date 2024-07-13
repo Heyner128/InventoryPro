@@ -6,15 +6,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -36,11 +34,9 @@ public class SKUValue {
           "The cost price can't have more than 20 integer digits or more then 2 decimal digits")
   private BigDecimal costPrice;
 
-  @NotNull
   @Min(0)
   private Long amountAvailable;
 
-  @NotNull
   @Min(0)
   private int marginPercentage;
 

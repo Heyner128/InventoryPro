@@ -1,16 +1,21 @@
 package me.heyner.inventorypro.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.proxy.HibernateProxy;
 
+/** An application user. */
 @Entity
 @Getter
 @Setter
@@ -41,9 +46,13 @@ public class ApplicationUser {
 
   @Override
   public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass =
+    if (this == o) {
+      return true;
+    }
+    if (o == null) {
+      return false;
+    }
+    Class<?> objectEffectiveClass =
         o instanceof HibernateProxy
             ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
             : o.getClass();
@@ -51,7 +60,9 @@ public class ApplicationUser {
         this instanceof HibernateProxy
             ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
             : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
+    if (thisEffectiveClass != objectEffectiveClass) {
+      return false;
+    }
     ApplicationUser applicationUser = (ApplicationUser) o;
     return getId() != null && Objects.equals(getId(), applicationUser.getId());
   }

@@ -1,13 +1,12 @@
 package me.heyner.inventorypro.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import me.heyner.inventorypro.exception.ConflictingIndexesException;
+import me.heyner.inventorypro.model.SKU;
 import me.heyner.inventorypro.model.SKUValue;
 import me.heyner.inventorypro.service.SKUService;
-import me.heyner.inventorypro.model.SKU;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 public class SKUController {

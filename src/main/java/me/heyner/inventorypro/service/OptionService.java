@@ -1,5 +1,6 @@
 package me.heyner.inventorypro.service;
 
+import java.util.List;
 import me.heyner.inventorypro.exception.OptionNotFoundException;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
 import me.heyner.inventorypro.model.Option;
@@ -11,8 +12,6 @@ import me.heyner.inventorypro.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class OptionService {
@@ -38,6 +37,7 @@ public class OptionService {
   public Option addOption(Long productId, Option option) throws ProductNotFoundException {
     Product product = productService.findById(productId);
     optionRepository.save(option);
+    System.out.println("test" + 12);
     logger.info("New option {} added to product {}", option.getName(), product.getName());
     return option;
   }

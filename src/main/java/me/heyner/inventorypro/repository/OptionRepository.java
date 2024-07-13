@@ -2,13 +2,12 @@ package me.heyner.inventorypro.repository;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Optional;
 import me.heyner.inventorypro.model.Option;
 import me.heyner.inventorypro.model.Product;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface OptionRepository extends CrudRepository<Option, Long> {
 
