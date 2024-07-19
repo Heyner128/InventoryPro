@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -25,9 +25,9 @@ public class SKU {
   @Column(unique = true, nullable = false)
   private String sku;
 
-  @ManyToOne private Product product;
+  @ManyToOne @NotNull private Product product;
 
-  @OneToMany(mappedBy = "sku")
+  @OneToMany(mappedBy = "sku", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @ToString.Exclude
   private List<SKUValue> values;
 

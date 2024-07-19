@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -24,7 +25,7 @@ import org.springframework.data.annotation.CreatedDate;
 public class SKUValue {
   @Id @GeneratedValue @JsonIgnore private Long id;
 
-  @ManyToOne private SKU sku;
+  @ManyToOne @NotNull private SKU sku;
 
   @DecimalMin(value = "0.0", inclusive = false, message = "The cost price should be positive")
   @Digits(
@@ -40,9 +41,9 @@ public class SKUValue {
   @Min(0)
   private int marginPercentage;
 
-  @ManyToOne private Option option;
+  @ManyToOne @NotNull private Option option;
 
-  @ManyToOne private OptionValue optionValue;
+  @ManyToOne @NotNull private OptionValue optionValue;
 
   @CreatedDate private LocalDate createdDate;
 

@@ -1,5 +1,6 @@
 package me.heyner.inventorypro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-/** An application user. */
 @Entity
 @Getter
 @Setter
@@ -23,7 +23,7 @@ import org.hibernate.proxy.HibernateProxy;
 @RequiredArgsConstructor
 public class ApplicationUser {
 
-  @Id @GeneratedValue private Long id;
+  @JsonIgnore @Id @GeneratedValue private Long id;
 
   @NotBlank(message = "The email can't be empty")
   private String email;
@@ -43,6 +43,10 @@ public class ApplicationUser {
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   @ToString.Exclude
   private List<Inventory> inventories;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @ToString.Exclude
+  private List<Product> products;
 
   @Override
   public final boolean equals(Object o) {

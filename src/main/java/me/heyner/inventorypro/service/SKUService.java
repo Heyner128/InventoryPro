@@ -1,109 +1,117 @@
 package me.heyner.inventorypro.service;
 
+import java.util.List;
+import me.heyner.inventorypro.dto.SKUDto;
+import me.heyner.inventorypro.dto.SKUValueDto;
+import me.heyner.inventorypro.exception.OptionNotFoundException;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
 import me.heyner.inventorypro.exception.SKUNotFoundException;
+import me.heyner.inventorypro.exception.UserNotFoundException;
 import me.heyner.inventorypro.model.*;
 import me.heyner.inventorypro.repository.SKURepository;
 import me.heyner.inventorypro.repository.SKUValuesRepository;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class SKUService {
 
-  Logger logger = LoggerFactory.getLogger(SKUService.class);
-
   private final SKURepository skuRepository;
-
   private final SKUValuesRepository skuValuesRepository;
-
   private final ProductService productService;
+  private final OptionService optionService;
+  Logger logger = LoggerFactory.getLogger(SKUService.class);
+  ModelMapper modelMapper = new ModelMapper();
 
   public SKUService(
       SKURepository skuRepository,
       SKUValuesRepository skuValuesRepository,
-      ProductService productService) {
+      ProductService productService,
+      OptionService optionService) {
     this.skuRepository = skuRepository;
     this.skuValuesRepository = skuValuesRepository;
     this.productService = productService;
+    this.optionService = optionService;
   }
 
-  public SKU addSKU(Long productId, SKU sku) throws ProductNotFoundException {
-    Product product = productService.findById(productId);
-    skuRepository.save(sku);
-    logger.info("New sku {} added to product {}", sku.getSku(), product.getName());
+  private SKU createSKU(String username, int productIndex, SKUDto skuDto)
+      throws ProductNotFoundException, UserNotFoundException {
+    Product product = productService.getProduct(username, productIndex);
+    SKU sku = modelMapper.map(skuDto, SKU.class);
+    sku.setProduct(product);
     return sku;
   }
 
-  public SKU getSKU(Long productId, int index) {
-    Product product = productService.findById(productId);
-    return product.getSkus().get(index);
+  public SKU addSKU(String username, int productIndex, SKUDto skuDto)
+      throws ProductNotFoundException, UserNotFoundException {
+    SKU sku = createSKU(username, productIndex, skuDto);
+    skuRepository.save(sku);
+    logger.info("New sku {} added", sku.getSku());
+    return sku;
   }
 
-  public List<SKU> getSkusByProductId(Long productId) throws ProductNotFoundException {
-    List<SKU> skus = skuRepository.findByProduct_Id(productId);
-    logger.info("Getting {} skus, for product {}", skus.size(), productId);
+  public SKU getSKU(String username, int productIndex, int skuIndex) throws SKUNotFoundException {
+    try {
+      Product product = productService.getProductWithSKU(username, productIndex);
+      SKU sku = product.getSkus().get(skuIndex);
+      logger.info("SKU {} found", sku.getSku());
+      return sku;
+    } catch (IndexOutOfBoundsException ex) {
+      throw new SKUNotFoundException("SKU not found");
+    }
+  }
+
+  public List<SKU> getSkus(String username, int productIndex) throws ProductNotFoundException {
+    Product product = productService.getProduct(username, productIndex);
+    List<SKU> skus = product.getSkus();
+    logger.info("SKUs {} found", skus.size());
     return skus;
   }
 
-  public SKU updateSKU(Long productId, SKU sku) throws SKUNotFoundException {
-    SKU skuToUpdate = getSKU(productId, sku.getIndex());
-    sku.setId(skuToUpdate.getId());
-    skuRepository.save(sku);
-    logger.info("SKU {} of product {} updated", sku.getSku(), productId);
-    return sku;
+  public SKU updateSKU(String username, int productIndex, int skuIndex, SKUDto skuDto)
+      throws SKUNotFoundException {
+    SKU skuToUpdate = getSKU(username, productIndex, skuIndex);
+    skuToUpdate.setSku(skuDto.getSku());
+    skuRepository.save(skuToUpdate);
+    logger.info("SKU {} updated", skuToUpdate.getSku());
+    return skuToUpdate;
   }
 
-  public void removeSKU(Long productId, int index)
-      throws ProductNotFoundException, SKUNotFoundException {
-    SKU skuToRemove = getSKU(productId, index);
-
+  public void removeSKU(String username, int productIndex, int skuIndex)
+      throws SKUNotFoundException, ProductNotFoundException {
+    SKU skuToRemove = getSKU(username, productIndex, skuIndex);
     skuRepository.delete(skuToRemove);
-
-    logger.info("SKU {} of product {}  successfully deleted ", skuToRemove.getSku(), productId);
+    logger.info("SKU {} removed", skuToRemove.getSku());
   }
 
-  public SKUValue addValue(Long productId, int skuIndex, SKUValue skuValue) {
-    SKU sku = getSKU(productId, skuIndex);
+  public SKUValue addValue(
+      String username, int productIndex, int optionIndex, int skuIndex, SKUValueDto skuValueDto)
+      throws ProductNotFoundException,
+          UserNotFoundException,
+          OptionNotFoundException,
+          SKUNotFoundException {
+    Option option = optionService.getOption(username, productIndex, optionIndex);
+    SKU sku = getSKU(username, productIndex, skuIndex);
+    SKUValue skuValue = modelMapper.map(skuValueDto, SKUValue.class);
+    skuValue.setOption(option);
     skuValue.setSku(sku);
     skuValuesRepository.save(skuValue);
-    logger.info("SKU value {} successfully added to sku {}", skuValue.getSku(), sku.getSku());
+    logger.info("SKU value {} added", skuValue.getSku());
     return skuValue;
   }
 
-  public SKUValue getSKUValue(Long productId, int skuIndex, int skuValueIndex) {
-    SKUValue skuValue = getSKU(productId, skuIndex).getValues().get(skuValueIndex);
-    logger.info(
-        "Getting value {} for sku index {} and product id {}",
-        skuValue.getSku(),
-        skuIndex,
-        productId);
-
-    return skuValue;
-  }
-
-  public SKUValue updateSKUValue(Long productId, int skuIndex, SKUValue skuValue) {
-    SKUValue skuValueToUpdate = getSKUValue(productId, skuIndex, skuValue.getIndex());
-    skuValue.setId(skuValueToUpdate.getId());
-    skuValuesRepository.save(skuValue);
-    logger.info(
-        "Value {} for sku index {} and product id {} successfully updated",
-        skuValue.getSku(),
-        skuIndex,
-        productId);
-    return skuValue;
-  }
-
-  public void removeSKUValue(Long productId, int skuIndex, int skuValueIndex) {
-    SKUValue skuValue = getSKUValue(productId, skuIndex, skuValueIndex);
-    skuValuesRepository.delete(skuValue);
-    logger.info(
-        "Value {} for sku index {} and product id {} successfully removed",
-        skuValue.getSku(),
-        skuIndex,
-        productId);
+  public void removeSKUValue(String username, int productIndex, int skuIndex, int skuValueIndex)
+      throws ProductNotFoundException, OptionNotFoundException, SKUNotFoundException {
+    try {
+      SKU sku = getSKU(username, productIndex, skuIndex);
+      SKUValue skuValue = sku.getValues().get(skuValueIndex);
+      skuValuesRepository.delete(skuValue);
+      logger.info("Value {} for sku index {} removed", skuValue.getSku(), skuValueIndex);
+    } catch (IndexOutOfBoundsException ex) {
+      logger.error(ex.getMessage(), ex);
+      throw new SKUNotFoundException("SKU not found");
+    }
   }
 }

@@ -6,8 +6,6 @@ import me.heyner.inventorypro.model.ApplicationUser;
 import me.heyner.inventorypro.repository.ApplicationUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -15,11 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApplicationUserService implements UserDetailsService {
 
-  private final ApplicationUserRepository applicationUserRepository;
-
   private static final Logger logger = LoggerFactory.getLogger(ApplicationUserService.class);
-
-  private final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+  private final ApplicationUserRepository applicationUserRepository;
 
   public ApplicationUserService(ApplicationUserRepository applicationUserRepository) {
     this.applicationUserRepository = applicationUserRepository;

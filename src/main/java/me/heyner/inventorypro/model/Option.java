@@ -2,14 +2,7 @@ package me.heyner.inventorypro.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -40,7 +33,7 @@ public class Option {
   @NotNull(message = "An option should have an associated product")
   private Product product;
 
-  @OneToMany(mappedBy = "option")
+  @OneToMany(mappedBy = "option", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @ToString.Exclude
   private List<OptionValue> values;
 

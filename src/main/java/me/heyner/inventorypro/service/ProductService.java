@@ -1,16 +1,16 @@
 package me.heyner.inventorypro.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import java.util.List;
+import me.heyner.inventorypro.dto.ProductDto;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
+import me.heyner.inventorypro.exception.UserNotFoundException;
 import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -19,17 +19,22 @@ public class ProductService {
 
   private final ProductRepository productRepository;
 
-  public ProductService(ProductRepository productRepository) {
+  @PersistenceContext private final EntityManager entityManager;
+
+  public ProductService(ProductRepository productRepository, EntityManager entityManager) {
     this.productRepository = productRepository;
+    this.entityManager = entityManager;
   }
 
-  public List<Product> getAllProducts() {
-    Iterator<Product> productIterator = productRepository.findAll().iterator();
-    List<Product> products = new ArrayList<>();
-    while (productIterator.hasNext()) {
-      products.add(productIterator.next());
+  public List<Product> getProducts(String username) throws UserNotFoundException {
+    try {
+      List<Product> products = productRepository.findByUser_username(username);
+      logger.info("{} products found for user {}", products.size(), username);
+      return products;
+    } catch (RuntimeException ex) {
+      logger.error(ex.getMessage(), ex);
+      throw new UserNotFoundException("Not found");
     }
-    return products;
   }
 
   public Product createProduct(Product product) {
@@ -38,39 +43,76 @@ public class ProductService {
     return product;
   }
 
-  public Product findById(Long id) throws ProductNotFoundException {
-    Optional<Product> product = productRepository.findById(id);
-    logger.info("Searching for product with the id {}", id);
-    logger.info("Product with the id {} {} found", id, (product.isEmpty() ? "Not" : ""));
-    return product.orElseThrow(() -> new ProductNotFoundException(id));
+  public Product getProduct(String username, int productIndex)
+      throws ProductNotFoundException, UserNotFoundException {
+    try {
+      List<Product> products = productRepository.findByUser_username(username);
+      Product product = products.get(productIndex);
+      logger.info("Product {} found", product.getName());
+      return product;
+    } catch (IndexOutOfBoundsException ex) {
+      logger.error(ex.getMessage(), ex);
+      throw new ProductNotFoundException("Not found");
+    } catch (RuntimeException ex) {
+      logger.error(ex.getMessage(), ex);
+      throw new UserNotFoundException("Not found");
+    }
   }
 
-  public List<Product> findByName(String name) {
-    List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
-    logger.info("Searching for products containing the name {}", name);
-    logger.info("{} product{} found", products.size(), (products.size() > 1 ? "s" : ""));
-    return products;
+  public Product getProductWithOptions(String username, int productIndex)
+      throws UserNotFoundException, ProductNotFoundException {
+    Product product = getProduct(username, productIndex);
+    return entityManager
+        .createQuery(
+            """
+           SELECT
+            p
+           FROM
+            Product p
+           JOIN FETCH
+            p.options
+           WHERE
+            p.id = :id
+        """,
+            Product.class)
+        .setParameter("id", product.getId())
+        .getSingleResult();
   }
 
-  public List<Product> findByBrand(String name) {
-    List<Product> products = productRepository.findByBrandContainingIgnoreCase(name);
-    logger.info("Searching for products containing the brand {}", name);
-    logger.info("{} product{} found", products.size(), (products.size() > 1 ? "s" : ""));
-    return products;
+  public Product getProductWithSKU(String username, int productIndex)
+      throws UserNotFoundException, ProductNotFoundException {
+    Product product = getProduct(username, productIndex);
+    return entityManager
+        .createQuery(
+            """
+           SELECT
+            p
+           FROM
+            Product p
+           JOIN FETCH
+            p.skus
+           WHERE
+            p.id = :id
+        """,
+            Product.class)
+        .setParameter("id", product.getId())
+        .getSingleResult();
   }
 
-  public Product updateProduct(Product product) throws ProductNotFoundException {
-    Product productToUpdate = findById(product.getId());
-    productRepository.save(product);
-    logger.info("Product {} successfully updated ", product.getName());
-    return product;
+  public Product updateProduct(String username, int productIndex, ProductDto productDto)
+      throws ProductNotFoundException {
+    Product productToUpdate = getProduct(username, productIndex);
+    productToUpdate.setName(productDto.getName());
+    productToUpdate.setDescription(productDto.getDescription());
+    productToUpdate.setBrand(productDto.getBrand());
+    productRepository.save(productToUpdate);
+    logger.info("{} Product successfully updated", productToUpdate.getName());
+    return productToUpdate;
   }
 
-  public void deleteProduct(Long id) throws ProductNotFoundException {
-    Product productToDelete = findById(id);
-
+  public void deleteProduct(String username, int productIndex) throws ProductNotFoundException {
+    Product productToDelete = getProduct(username, productIndex);
     productRepository.delete(productToDelete);
-
-    logger.info("Product {} successfully deleted", productToDelete.getName());
+    logger.info("{} Product successfully deleted", productToDelete.getName());
   }
 }

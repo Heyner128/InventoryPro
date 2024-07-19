@@ -1,14 +1,17 @@
 package me.heyner.inventorypro.service;
 
 import java.util.List;
+import me.heyner.inventorypro.dto.OptionDto;
+import me.heyner.inventorypro.dto.OptionValueDto;
 import me.heyner.inventorypro.exception.OptionNotFoundException;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
+import me.heyner.inventorypro.exception.UserNotFoundException;
 import me.heyner.inventorypro.model.Option;
 import me.heyner.inventorypro.model.OptionValue;
 import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.repository.OptionRepository;
 import me.heyner.inventorypro.repository.OptionValuesRepository;
-import me.heyner.inventorypro.repository.ProductRepository;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,58 +27,70 @@ public class OptionService {
 
   private final ProductService productService;
 
+  private final ModelMapper modelMapper = new ModelMapper();
+
   public OptionService(
       OptionRepository optionRepository,
       ProductService productService,
-      ProductRepository productRepository,
       OptionValuesRepository optionValuesRepository) {
     this.optionRepository = optionRepository;
     this.productService = productService;
     this.optionValuesRepository = optionValuesRepository;
   }
 
-  public Option addOption(Long productId, Option option) throws ProductNotFoundException {
-    Product product = productService.findById(productId);
-    optionRepository.save(option);
-    System.out.println("test" + 12);
-    logger.info("New option {} added to product {}", option.getName(), product.getName());
+  private Option createOption(String username, int productIndex, OptionDto optionDto)
+      throws ProductNotFoundException, UserNotFoundException {
+    Product product = productService.getProduct(username, productIndex);
+    Option option = modelMapper.map(optionDto, Option.class);
+    option.setProduct(product);
     return option;
   }
 
-  public Option getOption(Long productId, int index) throws OptionNotFoundException {
-    try {
-      Option option = optionRepository.findByProduct_Id(productId).get(index);
-      logger.info("Getting option number {} of product with the id {}", index, productId);
+  public Option addOption(String username, int productIndex, OptionDto optionDto)
+      throws ProductNotFoundException, UserNotFoundException {
+    Option option = createOption(username, productIndex, optionDto);
+    logger.info(
+        "New option {} added to product {} of the user {}",
+        option.getName(),
+        productIndex,
+        username);
+    return option;
+  }
 
+  public Option getOption(String username, int productIndex, int optionIndex)
+      throws ProductNotFoundException, OptionNotFoundException {
+    try {
+      Product product = productService.getProductWithOptions(username, productIndex);
+      Option option = product.getOptions().get(optionIndex);
+      logger.info("Getting option number {} of product {}", optionIndex, productIndex);
       return option;
     } catch (IndexOutOfBoundsException ex) {
-      throw new OptionNotFoundException((long) index);
+      throw new OptionNotFoundException("Not found");
     }
   }
 
-  public List<Option> getOptionsByProductId(Long productId) throws ProductNotFoundException {
-    List<Option> options = optionRepository.findByProduct_Id(productId);
-    logger.info("Getting {} options, for product {}", options.size(), productId);
+  public List<Option> getOptions(String username, int productIndex)
+      throws ProductNotFoundException {
+    Product product = productService.getProductWithOptions(username, productIndex);
+    List<Option> options = product.getOptions();
+    logger.info("Getting {} options for product {}", options.size(), product.getId());
     return options;
   }
 
-  public Option updateOption(Long productId, Option option) throws OptionNotFoundException {
-    Option optionToUpdate = getOption(productId, option.getIndex());
-    option.setId(optionToUpdate.getId());
-    optionRepository.save(option);
-    logger.info(
-        "Option {} of product {} updated to {}",
-        optionToUpdate.getName(),
-        productId,
-        option.getName());
+  public Option updateOption(
+      String username, int productIndex, int optionIndex, OptionDto optionDto)
+      throws OptionNotFoundException {
+    Option optionToUpdate = getOption(username, productIndex, optionIndex);
+    optionToUpdate.setName(optionDto.getName());
+    optionRepository.save(optionToUpdate);
+    logger.info("Option {} updated to {}", optionToUpdate.getName(), optionDto.getName());
 
-    return option;
+    return optionToUpdate;
   }
 
-  public void removeOption(Long productId, int index)
+  public void removeOption(String username, int productIndex, int optionIndex)
       throws ProductNotFoundException, OptionNotFoundException {
-    Option optionToRemove = getOption(productId, index);
-
+    Option optionToRemove = getOption(username, productIndex, optionIndex);
     optionRepository.delete(optionToRemove);
     logger.info(
         "Option {} of product {} successfully deleted",
@@ -83,8 +98,11 @@ public class OptionService {
         optionToRemove.getProduct().getName());
   }
 
-  public OptionValue addValue(Long productId, int optionIndex, OptionValue optionValue) {
-    Option option = getOption(productId, optionIndex);
+  public OptionValue addValue(
+      String username, int productIndex, int optionIndex, OptionValueDto optionValueDto)
+      throws ProductNotFoundException, UserNotFoundException, OptionNotFoundException {
+    Option option = getOption(username, productIndex, optionIndex);
+    OptionValue optionValue = modelMapper.map(optionValueDto, OptionValue.class);
     optionValue.setOption(option);
     optionValuesRepository.save(optionValue);
     logger.info(
@@ -94,37 +112,18 @@ public class OptionService {
     return optionValue;
   }
 
-  public OptionValue getOptionValue(Long productId, int optionIndex, int optionValueIndex) {
-    OptionValue optionValue = getOption(productId, optionIndex).getValues().get(optionValueIndex);
-    logger.info(
-        "Getting value {} for option index {} and product id {}",
-        optionValue.getValue(),
-        optionIndex,
-        productId);
-
-    return optionValue;
-  }
-
-  public OptionValue updateOptionValue(Long productId, int optionIndex, OptionValue optionValue) {
-    OptionValue optionValueToUpdate =
-        getOptionValue(productId, optionIndex, optionValue.getIndex());
-    optionValue.setId(optionValueToUpdate.getId());
-    optionValuesRepository.save(optionValue);
-    logger.info(
-        "Value {} for option index {} and product id {} successfully updated",
-        optionValue.getValue(),
-        optionIndex,
-        productId);
-    return optionValue;
-  }
-
-  public void removeOptionValue(Long productId, int optionIndex, int optionValueIndex) {
-    OptionValue optionValue = getOptionValue(productId, optionIndex, optionValueIndex);
-    optionValuesRepository.delete(optionValue);
-    logger.info(
-        "Value {} for option index {} and product id {} successfully removed",
-        optionValue.getValue(),
-        optionIndex,
-        productId);
+  public void removeOptionValue(
+      String username, int productIndex, int optionIndex, int optionValueIndex)
+      throws ProductNotFoundException, UserNotFoundException, OptionNotFoundException {
+    try {
+      Option option = getOption(username, productIndex, optionIndex);
+      OptionValue optionValue = option.getValues().get(optionValueIndex);
+      optionValuesRepository.delete(optionValue);
+      logger.info(
+          "Value {} for option index {} successfully removed", optionValue.getValue(), optionIndex);
+    } catch (IndexOutOfBoundsException ex) {
+      logger.error(ex.getMessage(), ex);
+      throw new OptionNotFoundException("Not found");
+    }
   }
 }

@@ -1,16 +1,16 @@
 package me.heyner.inventorypro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -18,7 +18,7 @@ import java.util.Set;
 @ToString
 @RequiredArgsConstructor
 public class Product {
-  @Id @GeneratedValue private Long id;
+  @JsonIgnore @Id @GeneratedValue private Long id;
 
   @NotBlank(message = "The name of a product can't be empty")
   @Column(unique = true, nullable = false)
@@ -37,6 +37,10 @@ public class Product {
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   @ToString.Exclude
   private List<SKU> skus;
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  @NotNull
+  private ApplicationUser user;
 
   @CreatedDate private LocalDate createdDate;
 

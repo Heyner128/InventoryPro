@@ -6,15 +6,10 @@ import me.heyner.inventorypro.exception.ConflictingIndexesException;
 import me.heyner.inventorypro.model.Option;
 import me.heyner.inventorypro.model.OptionValue;
 import me.heyner.inventorypro.service.OptionService;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/products/{productId}/options")
 public class OptionController {
 
   private final OptionService optionService;
@@ -23,22 +18,22 @@ public class OptionController {
     this.optionService = optionService;
   }
 
-  @GetMapping("/products/{productId}/options")
+  @GetMapping("/")
   public List<Option> getProductOptions(@PathVariable Long productId) {
     return optionService.getOptionsByProductId(productId);
   }
 
-  @PostMapping("/products/{productId}/options")
+  @PostMapping("/")
   public Option createOption(@PathVariable Long productId, @RequestBody @Valid Option option) {
     return optionService.addOption(productId, option);
   }
 
-  @GetMapping("/products/{productId}/options/{optionIndex}")
+  @GetMapping("/{optionIndex}")
   public Option getOption(@PathVariable Long productId, @PathVariable int optionIndex) {
     return optionService.getOption(productId, optionIndex);
   }
 
-  @PutMapping("/products/{productId}/options/{optionIndex}")
+  @PutMapping("/{optionIndex}")
   public Option updateOption(
       @PathVariable Long productId,
       @PathVariable int optionIndex,
@@ -49,18 +44,18 @@ public class OptionController {
     return optionService.updateOption(productId, option);
   }
 
-  @DeleteMapping("/products/{productId}/options/{optionIndex}")
+  @DeleteMapping("/{optionIndex}")
   public void deleteOption(@PathVariable Long productId, @PathVariable int optionIndex) {
     optionService.removeOption(productId, optionIndex);
   }
 
-  @GetMapping("/products/{productId}/options/{optionIndex}/values")
+  @GetMapping("/{optionIndex}/values")
   public List<OptionValue> getOptionValues(
       @PathVariable Long productId, @PathVariable int optionIndex) {
     return optionService.getOption(productId, optionIndex).getValues();
   }
 
-  @PostMapping("/products/{productId}/options/{optionIndex}/values")
+  @PostMapping("/{optionIndex}/values")
   public OptionValue addOptionValue(
       @PathVariable Long productId,
       @PathVariable int optionIndex,
@@ -68,7 +63,7 @@ public class OptionController {
     return optionService.addValue(productId, optionIndex, optionValue);
   }
 
-  @GetMapping("products/{productId}/options/{optionIndex}/values/{optionValueIndex}")
+  @GetMapping("/{optionIndex}/values/{optionValueIndex}")
   public OptionValue getOptionValue(
       @PathVariable Long productId,
       @PathVariable int optionIndex,
@@ -76,7 +71,7 @@ public class OptionController {
     return optionService.getOptionValue(productId, optionIndex, optionValueIndex);
   }
 
-  @PutMapping("products/{productId}/options/{optionIndex}/values/{optionValueIndex}")
+  @PutMapping("/{optionIndex}/values/{optionValueIndex}")
   public OptionValue updateOptionValue(
       @PathVariable Long productId,
       @PathVariable int optionIndex,
@@ -86,7 +81,7 @@ public class OptionController {
     return optionService.updateOptionValue(productId, optionIndex, optionValue);
   }
 
-  @DeleteMapping("products/{productId}/options/{optionIndex}/values/{optionValueIndex}")
+  @DeleteMapping("/{optionIndex}/values/{optionValueIndex}")
   public void deleteOptionValue(
       @PathVariable Long productId,
       @PathVariable int optionIndex,
