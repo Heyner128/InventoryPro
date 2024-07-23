@@ -1,6 +1,7 @@
 package me.heyner.inventorypro.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class Product {
   @JsonIgnore @Id @GeneratedValue private Long id;
 
@@ -40,11 +41,16 @@ public class Product {
 
   @ManyToOne(fetch = FetchType.EAGER)
   @NotNull
-  private ApplicationUser user;
+  private User user;
 
   @CreatedDate private LocalDate createdDate;
 
   @UpdateTimestamp private LocalDate updateDate;
+
+  @JsonProperty("id")
+  public final int getIndex() {
+    return user.getProducts().indexOf(this);
+  }
 
   @Override
   public final boolean equals(Object o) {

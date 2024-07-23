@@ -2,13 +2,13 @@ package me.heyner.inventorypro.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import me.heyner.inventorypro.exception.ConflictingIndexesException;
+import me.heyner.inventorypro.dto.ProductDto;
 import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/users/{username}/products")
 public class ProductController {
 
   private final ProductService productService;
@@ -17,31 +17,32 @@ public class ProductController {
     this.productService = productService;
   }
 
-  @GetMapping("/")
-  public List<Product> getAllProducts() {
-    return productService.getProducts();
+  @GetMapping
+  public List<Product> getAllProducts(@PathVariable String username) {
+    return productService.getProducts(username);
   }
 
-  @GetMapping("/{productId}")
-  public Product getProduct(@PathVariable Long productId) {
-    return productService.findById(productId);
+  @GetMapping("/{productIndex}")
+  public Product getProduct(@PathVariable String username, @PathVariable int productIndex) {
+    return productService.getProduct(username, productIndex);
   }
 
-  @PostMapping("/products")
-  public Product createProduct(@RequestBody @Valid Product product) {
-    return productService.createProduct(product);
+  @PostMapping
+  public Product createProduct(
+      @RequestBody @Valid ProductDto productDto, @PathVariable String username) {
+    return productService.createProduct(username, productDto);
   }
 
-  @PutMapping("/{productId}")
-  public Product updateProduct(@PathVariable Long productId, @RequestBody @Valid Product product) {
-    if (product.getId() != null && !product.getId().equals(productId))
-      throw new ConflictingIndexesException();
-    product.setId(productId);
-    return productService.updateProduct(product);
+  @PutMapping("/{productIndex}")
+  public Product updateProduct(
+      @PathVariable String username,
+      @PathVariable int productIndex,
+      @RequestBody @Valid ProductDto productDto) {
+    return productService.updateProduct(username, productIndex, productDto);
   }
 
-  @DeleteMapping("/{productId}")
-  public void deleteProduct(@PathVariable Long productId) {
-    productService.deleteProduct(productId);
+  @DeleteMapping("/{productIndex}")
+  public void deleteProduct(@PathVariable String username, @PathVariable int productIndex) {
+    productService.deleteProduct(username, productIndex);
   }
 }

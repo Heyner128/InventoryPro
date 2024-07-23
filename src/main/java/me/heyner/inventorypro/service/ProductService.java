@@ -7,7 +7,9 @@ import me.heyner.inventorypro.dto.ProductDto;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
 import me.heyner.inventorypro.exception.UserNotFoundException;
 import me.heyner.inventorypro.model.Product;
+import me.heyner.inventorypro.model.User;
 import me.heyner.inventorypro.repository.ProductRepository;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,11 +21,17 @@ public class ProductService {
 
   private final ProductRepository productRepository;
 
+  private final UserService userService;
+
   @PersistenceContext private final EntityManager entityManager;
 
-  public ProductService(ProductRepository productRepository, EntityManager entityManager) {
+  private final ModelMapper modelMapper = new ModelMapper();
+
+  public ProductService(
+      ProductRepository productRepository, EntityManager entityManager, UserService userService) {
     this.productRepository = productRepository;
     this.entityManager = entityManager;
+    this.userService = userService;
   }
 
   public List<Product> getProducts(String username) throws UserNotFoundException {
@@ -37,7 +45,11 @@ public class ProductService {
     }
   }
 
-  public Product createProduct(Product product) {
+  public Product createProduct(String username, ProductDto productDto)
+      throws UserNotFoundException {
+    Product product = modelMapper.map(productDto, Product.class);
+    User user = userService.loadUserByUsername(username);
+    product.setUser(user);
     productRepository.save(product);
     logger.info("{} Product successfully created", product.getName());
     return product;

@@ -1,6 +1,6 @@
 package me.heyner.inventorypro.exception;
 
-import me.heyner.inventorypro.model.ApplicationUser;
+import me.heyner.inventorypro.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -18,7 +18,7 @@ public class UserNotFoundException extends RuntimeException {
     super("User with the id " + userId + "not found");
   }
 
-  public UserNotFoundException(ApplicationUser user) {
+  public UserNotFoundException(User user) {
     super("User " + user + " not found");
   }
 }

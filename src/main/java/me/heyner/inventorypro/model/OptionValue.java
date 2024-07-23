@@ -17,7 +17,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "value"}))
 public class OptionValue {
   @Id @GeneratedValue @JsonIgnore private Long id;

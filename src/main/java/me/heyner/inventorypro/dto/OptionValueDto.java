@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class OptionValueDto {
-  String value;
+  private final String value;
 }

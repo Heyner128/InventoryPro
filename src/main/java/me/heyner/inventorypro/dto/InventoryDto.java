@@ -1,6 +1,5 @@
 package me.heyner.inventorypro.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,6 +8,5 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class InventoryDto {
-
-  @NotBlank private final String name;
+  private final String name;
 }

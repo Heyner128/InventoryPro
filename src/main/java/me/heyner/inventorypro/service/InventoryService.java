@@ -4,8 +4,8 @@ import java.util.List;
 import me.heyner.inventorypro.dto.InventoryDto;
 import me.heyner.inventorypro.exception.InventoryNotFoundException;
 import me.heyner.inventorypro.exception.UserNotFoundException;
-import me.heyner.inventorypro.model.ApplicationUser;
 import me.heyner.inventorypro.model.Inventory;
+import me.heyner.inventorypro.model.User;
 import me.heyner.inventorypro.repository.InventoryRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -20,20 +20,19 @@ public class InventoryService {
 
   private final InventoryRepository inventoryRepository;
 
-  private final ApplicationUserService applicationUserService;
+  private final UserService userService;
 
   private final ModelMapper modelMapper = new ModelMapper();
 
-  public InventoryService(
-      InventoryRepository inventoryRepository, ApplicationUserService applicationUserService) {
+  public InventoryService(InventoryRepository inventoryRepository, UserService userService) {
     this.inventoryRepository = inventoryRepository;
-    this.applicationUserService = applicationUserService;
+    this.userService = userService;
   }
 
   public Inventory addInventory(String username, InventoryDto inventoryDto)
       throws UserNotFoundException {
     Inventory inventory = modelMapper.map(inventoryDto, Inventory.class);
-    ApplicationUser user = applicationUserService.getApplicationUser(username);
+    User user = userService.loadUserByUsername(username);
     inventory.setUser(user);
     inventoryRepository.save(inventory);
     logger.info("Inventory saved: {}", inventory);
@@ -77,7 +76,7 @@ public class InventoryService {
 
   public List<Inventory> getInventoriesByUsername(String username)
       throws UsernameNotFoundException {
-    UserDetails user = applicationUserService.loadUserByUsername(username);
+    UserDetails user = userService.loadUserByUsername(username);
     List<Inventory> inventories = inventoryRepository.findByUser_username(username);
     logger.info("Getting {} inventories for user {}", inventories.size(), user);
     return inventories;

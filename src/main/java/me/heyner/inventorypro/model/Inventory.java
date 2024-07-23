@@ -1,6 +1,7 @@
 package me.heyner.inventorypro.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -15,10 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,7 +25,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class Inventory {
   @JsonIgnore @Id @GeneratedValue private Long id;
 
@@ -42,11 +40,16 @@ public class Inventory {
   @MapKeyJoinColumn(name = "sku_id", referencedColumnName = "id")
   private Map<SKU, Integer> items;
 
-  @ManyToOne @NotNull private ApplicationUser user;
+  @ManyToOne @NotNull private User user;
 
   @CreatedDate private LocalDate createdDate;
 
   @UpdateTimestamp private LocalDate updateDate;
+
+  @JsonProperty("id")
+  public final int getIndex() {
+    return user.getInventories().indexOf(this);
+  }
 
   @Override
   public final boolean equals(Object o) {

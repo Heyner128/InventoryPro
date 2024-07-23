@@ -1,6 +1,5 @@
 package me.heyner.inventorypro.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,12 +8,9 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class ProductDto {
-  @NotBlank(message = "The name of a product can't be empty")
-  private String name;
+  private final String name;
 
-  @NotBlank(message = "The description of a product can't be empty")
-  private String description;
+  private final String description;
 
-  @NotBlank(message = "The brand of a product can't be empty")
-  private String brand;
+  private final String brand;
 }

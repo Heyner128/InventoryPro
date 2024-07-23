@@ -2,12 +2,10 @@ package me.heyner.inventorypro.service;
 
 import java.util.List;
 import me.heyner.inventorypro.dto.OptionDto;
-import me.heyner.inventorypro.dto.OptionValueDto;
 import me.heyner.inventorypro.exception.OptionNotFoundException;
 import me.heyner.inventorypro.exception.ProductNotFoundException;
 import me.heyner.inventorypro.exception.UserNotFoundException;
 import me.heyner.inventorypro.model.Option;
-import me.heyner.inventorypro.model.OptionValue;
 import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.repository.OptionRepository;
 import me.heyner.inventorypro.repository.OptionValuesRepository;
@@ -96,34 +94,5 @@ public class OptionService {
         "Option {} of product {} successfully deleted",
         optionToRemove.getName(),
         optionToRemove.getProduct().getName());
-  }
-
-  public OptionValue addValue(
-      String username, int productIndex, int optionIndex, OptionValueDto optionValueDto)
-      throws ProductNotFoundException, UserNotFoundException, OptionNotFoundException {
-    Option option = getOption(username, productIndex, optionIndex);
-    OptionValue optionValue = modelMapper.map(optionValueDto, OptionValue.class);
-    optionValue.setOption(option);
-    optionValuesRepository.save(optionValue);
-    logger.info(
-        "Option value {} successfully added to option {}",
-        optionValue.getValue(),
-        option.getName());
-    return optionValue;
-  }
-
-  public void removeOptionValue(
-      String username, int productIndex, int optionIndex, int optionValueIndex)
-      throws ProductNotFoundException, UserNotFoundException, OptionNotFoundException {
-    try {
-      Option option = getOption(username, productIndex, optionIndex);
-      OptionValue optionValue = option.getValues().get(optionValueIndex);
-      optionValuesRepository.delete(optionValue);
-      logger.info(
-          "Value {} for option index {} successfully removed", optionValue.getValue(), optionIndex);
-    } catch (IndexOutOfBoundsException ex) {
-      logger.error(ex.getMessage(), ex);
-      throw new OptionNotFoundException("Not found");
-    }
   }
 }

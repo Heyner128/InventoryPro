@@ -19,7 +19,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Table(
     uniqueConstraints = @UniqueConstraint(columnNames = {"sku_id", "option_id", "option_value_id"}))
 public class SKUValue {

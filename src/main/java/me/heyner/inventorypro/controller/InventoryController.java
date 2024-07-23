@@ -2,14 +2,13 @@ package me.heyner.inventorypro.controller;
 
 import jakarta.validation.Valid;
 import me.heyner.inventorypro.dto.InventoryDto;
-import me.heyner.inventorypro.exception.ConflictingIndexesException;
 import me.heyner.inventorypro.model.Inventory;
 import me.heyner.inventorypro.service.InventoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/inventory")
+@RequestMapping("/users/{username}/inventory")
 public class InventoryController {
 
   private final InventoryService inventoryService;
@@ -20,29 +19,28 @@ public class InventoryController {
     this.inventoryService = inventoryService;
   }
 
-  @PostMapping("/")
-  public Inventory createInventory(@RequestBody @Valid InventoryDto inventoryDto) {
-    return inventoryService.addInventory(modelMapper.map(inventoryDto, Inventory.class));
+  @PostMapping
+  public Inventory createInventory(
+      @PathVariable String username, @RequestBody @Valid InventoryDto inventoryDto) {
+    return inventoryService.addInventory(username, inventoryDto);
   }
 
-  @GetMapping("/{id}")
-  public Inventory getInventory(@PathVariable int id) {
-    return inventoryService.getInventory((long) id);
+  @GetMapping("/{inventoryIndex}")
+  public Inventory getInventory(@PathVariable String username, @PathVariable int inventoryIndex) {
+    return inventoryService.getInventory(username, inventoryIndex);
   }
 
-  @PutMapping("/{id}")
+  @PutMapping("/{inventoryIndex}")
   public Inventory updateInventory(
-      @PathVariable int id, @RequestBody @Valid InventoryDto inventoryDto)
-      throws ConflictingIndexesException {
+      @PathVariable String username,
+      @PathVariable int inventoryIndex,
+      @RequestBody @Valid InventoryDto inventoryDto) {
     Inventory inventory = modelMapper.map(inventoryDto, Inventory.class);
-    if (inventory.getId() != id) {
-      throw new ConflictingIndexesException();
-    }
-    return inventoryService.updateInventory(inventory);
+    return inventoryService.updateInventory(username, inventoryIndex, inventoryDto);
   }
 
-  @DeleteMapping("/{id}")
-  public void deleteInventory(@PathVariable int id) {
-    inventoryService.deleteInventory((long) id);
+  @DeleteMapping("/{inventoryIndex}")
+  public void deleteInventory(@PathVariable String username, @PathVariable int inventoryIndex) {
+    inventoryService.deleteInventory(username, inventoryIndex);
   }
 }

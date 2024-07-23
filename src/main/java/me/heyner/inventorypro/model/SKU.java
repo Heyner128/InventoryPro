@@ -17,7 +17,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class SKU {
   @Id @GeneratedValue @JsonIgnore private Long id;
 
