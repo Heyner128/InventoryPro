@@ -1,22 +1,14 @@
 package me.heyner.inventorypro.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapKeyJoinColumn;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import jakarta.persistence.*;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
-import lombok.*;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
@@ -26,30 +18,30 @@ import org.springframework.data.annotation.CreatedDate;
 @Setter
 @ToString
 @NoArgsConstructor
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "name"})})
 public class Inventory {
-  @JsonIgnore @Id @GeneratedValue private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-  @NotBlank(message = "The name of an inventory cannot be empty")
+  @Column(nullable = false)
   private String name;
 
   @ElementCollection
   @CollectionTable(
       name = "inventory_quantity",
       joinColumns = @JoinColumn(name = "inventory_id", referencedColumnName = "id"))
-  @Column(name = "quantity")
+  @Column(name = "quantities")
   @MapKeyJoinColumn(name = "sku_id", referencedColumnName = "id")
   private Map<SKU, Integer> items;
 
-  @ManyToOne @NotNull private User user;
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private User user;
 
-  @CreatedDate private LocalDate createdDate;
+  @CreatedDate private Date createdDate;
 
-  @UpdateTimestamp private LocalDate updateDate;
-
-  @JsonProperty("id")
-  public final int getIndex() {
-    return user.getInventories().indexOf(this);
-  }
+  @UpdateTimestamp private Date updateDate;
 
   @Override
   public final boolean equals(Object o) {
@@ -70,8 +62,8 @@ public class Inventory {
     if (thisEffectiveClass != objectEffectiveClass) {
       return false;
     }
-    Option option = (Option) o;
-    return getId() != null && Objects.equals(getId(), option.getId());
+    Inventory inventory = (Inventory) o;
+    return getId() != null && Objects.equals(getId(), inventory.getId());
   }
 
   @Override

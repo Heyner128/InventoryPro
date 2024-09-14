@@ -1,11 +1,12 @@
 package me.heyner.inventorypro.service;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import me.heyner.inventorypro.dto.SKUDto;
-import me.heyner.inventorypro.exception.ProductNotFoundException;
-import me.heyner.inventorypro.exception.SKUNotFoundException;
-import me.heyner.inventorypro.exception.UserNotFoundException;
+import me.heyner.inventorypro.exception.EntityNotFoundException;
 import me.heyner.inventorypro.model.*;
+import me.heyner.inventorypro.repository.ProductRepository;
 import me.heyner.inventorypro.repository.SKURepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -16,62 +17,51 @@ import org.springframework.stereotype.Service;
 public class SKUService {
 
   private final SKURepository skuRepository;
-  private final ProductService productService;
+  private final ProductRepository productRepository;
   Logger logger = LoggerFactory.getLogger(SKUService.class);
   ModelMapper modelMapper = new ModelMapper();
 
-  public SKUService(SKURepository skuRepository, ProductService productService) {
+  public SKUService(
+      SKURepository skuRepository,
+      ProductService productService,
+      ProductRepository productRepository) {
     this.skuRepository = skuRepository;
-    this.productService = productService;
+    this.productRepository = productRepository;
   }
 
-  private SKU createSKU(String username, int productIndex, SKUDto skuDto)
-      throws ProductNotFoundException, UserNotFoundException {
-    Product product = productService.getProduct(username, productIndex);
+  public SKUDto addSKU(UUID productUuid, SKUDto skuDto) throws EntityNotFoundException {
+    Product product =
+        productRepository
+            .findById(productUuid)
+            .orElseThrow(() -> new EntityNotFoundException("Not found"));
     SKU sku = modelMapper.map(skuDto, SKU.class);
     sku.setProduct(product);
-    return sku;
+    SKU savedSku = skuRepository.save(sku);
+    logger.info("SKU created: " + sku);
+    return modelMapper.map(savedSku, SKUDto.class);
   }
 
-  public SKU addSKU(String username, int productIndex, SKUDto skuDto)
-      throws ProductNotFoundException, UserNotFoundException {
-    SKU sku = createSKU(username, productIndex, skuDto);
-    skuRepository.save(sku);
-    logger.info("New sku {} added", sku.getSku());
-    return sku;
-  }
-
-  public SKU getSKU(String username, int productIndex, int skuIndex) throws SKUNotFoundException {
-    try {
-      Product product = productService.getProductWithSKU(username, productIndex);
-      SKU sku = product.getSkus().get(skuIndex);
-      logger.info("SKU {} found", sku.getSku());
-      return sku;
-    } catch (IndexOutOfBoundsException ex) {
-      throw new SKUNotFoundException("SKU not found");
-    }
-  }
-
-  public List<SKU> getSkus(String username, int productIndex) throws ProductNotFoundException {
-    Product product = productService.getProduct(username, productIndex);
-    List<SKU> skus = product.getSkus();
+  public List<SKUDto> getSkus(UUID productUuid) throws EntityNotFoundException {
+    List<SKU> skus = skuRepository.findByProduct_Id(productUuid);
     logger.info("SKUs {} found", skus.size());
-    return skus;
+    return skus.stream().map((element) -> modelMapper.map(element, SKUDto.class)).toList();
   }
 
-  public SKU updateSKU(String username, int productIndex, int skuIndex, SKUDto skuDto)
-      throws SKUNotFoundException {
-    SKU skuToUpdate = getSKU(username, productIndex, skuIndex);
-    skuToUpdate.setSku(skuDto.getSku());
-    skuRepository.save(skuToUpdate);
-    logger.info("SKU {} updated", skuToUpdate.getSku());
-    return skuToUpdate;
-  }
+  public List<SKUDto> updateSkus(UUID productUUID, List<SKUDto> skuDtos)
+      throws EntityNotFoundException {
+    Product product =
+        productRepository
+            .findById(productUUID)
+            .orElseThrow(() -> new EntityNotFoundException("Not found"));
+    product.setSkus(
+        skuDtos.stream()
+            .map(skuDto -> new SKU().setProduct(product).setSku(skuDto.getSku()))
+            .collect(Collectors.toList()));
 
-  public void removeSKU(String username, int productIndex, int skuIndex)
-      throws SKUNotFoundException, ProductNotFoundException {
-    SKU skuToRemove = getSKU(username, productIndex, skuIndex);
-    skuRepository.delete(skuToRemove);
-    logger.info("SKU {} removed", skuToRemove.getSku());
+    productRepository.save(product);
+
+    return skuRepository.findByProduct_Id(productUUID).stream()
+        .map((element) -> modelMapper.map(element, SKUDto.class))
+        .toList();
   }
 }

@@ -1,14 +1,12 @@
 package me.heyner.inventorypro.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
@@ -16,29 +14,29 @@ import org.springframework.data.annotation.CreatedDate;
 @Entity
 @Getter
 @Setter
+@Accessors(chain = true)
 @ToString
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "sku"})})
 @NoArgsConstructor
 public class SKU {
-  @Id @GeneratedValue @JsonIgnore private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-  @NotBlank(message = "SKU name can't be blank")
-  @Column(unique = true, nullable = false)
+  @Column(nullable = false)
   private String sku;
 
-  @ManyToOne @NotNull private Product product;
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private Product product;
 
   @OneToMany(mappedBy = "sku", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @ToString.Exclude
   private List<SKUValue> values;
 
-  @CreatedDate private LocalDate createdDate;
+  @CreatedDate private Date createdDate;
 
-  @UpdateTimestamp private LocalDate updateDate;
-
-  @JsonProperty("id")
-  public final int getIndex() {
-    return product.getSkus().indexOf(this);
-  }
+  @UpdateTimestamp private Date updateDate;
 
   @Override
   public final boolean equals(Object o) {

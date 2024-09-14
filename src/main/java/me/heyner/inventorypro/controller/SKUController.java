@@ -2,13 +2,13 @@ package me.heyner.inventorypro.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import me.heyner.inventorypro.dto.SKUDto;
-import me.heyner.inventorypro.model.SKU;
 import me.heyner.inventorypro.service.SKUService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users/{username}/products/{productIndex}/skus")
+@RequestMapping("/users/{username}/products/{productUuid}/skus")
 public class SKUController {
 
   private final SKUService skuService;
@@ -18,36 +18,18 @@ public class SKUController {
   }
 
   @GetMapping
-  public List<SKU> getProductSKUs(@PathVariable int productIndex, @PathVariable String username) {
-    return skuService.getSkus(username, productIndex);
+  public List<SKUDto> getProductSKUs(@PathVariable UUID productUuid) {
+    return skuService.getSkus(productUuid);
   }
 
   @PostMapping
-  public SKU createSKU(
-      @PathVariable String username,
-      @PathVariable int productIndex,
-      @Valid @RequestBody SKUDto skuDto) {
-    return skuService.addSKU(username, productIndex, skuDto);
+  public SKUDto createSKU(@PathVariable UUID productUuid, @Valid @RequestBody SKUDto skuDto) {
+    return skuService.addSKU(productUuid, skuDto);
   }
 
-  @GetMapping("/{skuIndex}")
-  public SKU getSKU(
-      @PathVariable String username, @PathVariable int productIndex, @PathVariable int skuIndex) {
-    return skuService.getSKU(username, productIndex, skuIndex);
-  }
-
-  @PutMapping("/{skuIndex}")
-  public SKU updateSKU(
-      @PathVariable String username,
-      @PathVariable int productIndex,
-      @PathVariable int skuIndex,
-      @RequestBody SKUDto skuDto) {
-    return skuService.updateSKU(username, productIndex, skuIndex, skuDto);
-  }
-
-  @DeleteMapping("/{skuIndex}")
-  public void deleteSKU(
-      @PathVariable String username, @PathVariable int productIndex, @PathVariable int skuIndex) {
-    skuService.removeSKU(username, productIndex, skuIndex);
+  @PutMapping
+  public List<SKUDto> updateSKUs(
+      @PathVariable UUID productUuid, @RequestBody List<SKUDto> skuDtos) {
+    return skuService.updateSkus(productUuid, skuDtos);
   }
 }

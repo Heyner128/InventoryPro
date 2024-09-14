@@ -1,11 +1,12 @@
 package me.heyner.inventorypro.repository;
 
 import java.util.List;
+import java.util.UUID;
 import me.heyner.inventorypro.model.Inventory;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-public interface InventoryRepository extends CrudRepository<Inventory, Long> {
+public interface InventoryRepository extends CrudRepository<Inventory, UUID> {
 
   @Query("select i from Inventory i where i.user.username = ?1")
   List<Inventory> findByUser_username(String username);

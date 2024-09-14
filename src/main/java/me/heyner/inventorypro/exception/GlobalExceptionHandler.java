@@ -22,4 +22,29 @@ public class GlobalExceptionHandler {
         .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
     return ResponseEntity.badRequest().body(errors);
   }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(ExistingUserException.class)
+  public ResponseEntity<Map<String, String>> handleUniqueUserException(ExistingUserException ex) {
+    Map<String, String> errors = new HashMap<>();
+    errors.put("message", ex.getMessage());
+    return ResponseEntity.badRequest().body(errors);
+  }
+
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<Map<String, String>> handleEntityNotFoundException(
+      EntityNotFoundException ex) {
+    Map<String, String> errors = new HashMap<>();
+    errors.put("message", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<Map<String, String>> handleAnyException(Exception ex) {
+    Map<String, String> errors = new HashMap<>();
+    errors.put("message", ex.getMessage());
+    return ResponseEntity.badRequest().body(errors);
+  }
 }

@@ -1,47 +1,66 @@
 package me.heyner.inventorypro.service;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import me.heyner.inventorypro.dto.LoginUserDto;
 import me.heyner.inventorypro.dto.RegisterUserDto;
+import me.heyner.inventorypro.dto.UserDto;
+import me.heyner.inventorypro.exception.EntityNotFoundException;
+import me.heyner.inventorypro.exception.ExistingUserException;
+import me.heyner.inventorypro.model.Authority;
 import me.heyner.inventorypro.model.User;
 import me.heyner.inventorypro.repository.UserRepository;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticationService {
-  private final UserRepository userRepository;
-
-  private final PasswordEncoder passwordEncoder;
 
   private final AuthenticationManager authenticationManager;
 
+  private final PasswordEncoder passwordEncoder;
+
+  private final UserRepository userRepository;
+
+  private final ModelMapper modelMapper = new ModelMapper();
+
   public AuthenticationService(
+      AuthenticationManager authenticationManager,
       UserRepository userRepository,
-      PasswordEncoder passwordEncoder,
-      AuthenticationManager authenticationManager) {
+      PasswordEncoder passwordEncoder) {
+    this.authenticationManager = authenticationManager;
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
-    this.authenticationManager = authenticationManager;
   }
 
-  public User signUp(@Valid RegisterUserDto registerUserDto) {
-    User user =
-        new User()
-            .setAuthority("USER")
-            .setUsername(registerUserDto.getUsername())
-            .setPassword(passwordEncoder.encode(registerUserDto.getPassword()));
-
-    return userRepository.save(user);
-  }
-
-  public User authenticate(@Valid LoginUserDto loginUserDto) {
+  public UserDto authenticate(@Valid LoginUserDto loginUserDto)
+      throws DisabledException, LockedException, BadCredentialsException {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
-            loginUserDto.getEmail(), loginUserDto.getPassword()));
+            loginUserDto.getUsername(), loginUserDto.getPassword()));
 
-    return userRepository.findByEmail(loginUserDto.getEmail()).orElseThrow();
+    return modelMapper.map(
+        userRepository
+            .findByUsername(loginUserDto.getUsername())
+            .orElseThrow(() -> new EntityNotFoundException("Not found")),
+        UserDto.class);
+  }
+
+  public UserDto signUp(@Valid RegisterUserDto registerUserDto) throws ExistingUserException {
+    try {
+      User user =
+          new User()
+              .setAuthorities(List.of(Authority.USER))
+              .setEmail(registerUserDto.getEmail())
+              .setUsername(registerUserDto.getUsername())
+              .setPassword(passwordEncoder.encode(registerUserDto.getPassword()));
+
+      return modelMapper.map(userRepository.save(user), UserDto.class);
+    } catch (DataIntegrityViolationException e) {
+      throw new ExistingUserException(registerUserDto.getEmail());
+    }
   }
 }

@@ -2,8 +2,8 @@ package me.heyner.inventorypro.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import me.heyner.inventorypro.dto.ProductDto;
-import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,31 +18,29 @@ public class ProductController {
   }
 
   @GetMapping
-  public List<Product> getAllProducts(@PathVariable String username) {
+  public List<ProductDto> getAllProducts(@PathVariable String username) {
     return productService.getProducts(username);
   }
 
-  @GetMapping("/{productIndex}")
-  public Product getProduct(@PathVariable String username, @PathVariable int productIndex) {
-    return productService.getProduct(username, productIndex);
+  @GetMapping("/{productUuid}")
+  public ProductDto getProduct(@PathVariable UUID uuid) {
+    return productService.getProduct(uuid);
   }
 
   @PostMapping
-  public Product createProduct(
+  public ProductDto createProduct(
       @RequestBody @Valid ProductDto productDto, @PathVariable String username) {
     return productService.createProduct(username, productDto);
   }
 
-  @PutMapping("/{productIndex}")
-  public Product updateProduct(
-      @PathVariable String username,
-      @PathVariable int productIndex,
-      @RequestBody @Valid ProductDto productDto) {
-    return productService.updateProduct(username, productIndex, productDto);
+  @PutMapping("/{productUuid}")
+  public ProductDto updateProduct(
+      @PathVariable UUID productUuid, @RequestBody @Valid ProductDto productDto) {
+    return productService.updateProduct(productUuid, productDto);
   }
 
-  @DeleteMapping("/{productIndex}")
-  public void deleteProduct(@PathVariable String username, @PathVariable int productIndex) {
-    productService.deleteProduct(username, productIndex);
+  @DeleteMapping("/{productUui}")
+  public void deleteProduct(@PathVariable UUID uuid) {
+    productService.deleteProduct(uuid);
   }
 }

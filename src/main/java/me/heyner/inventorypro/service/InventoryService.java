@@ -1,9 +1,9 @@
 package me.heyner.inventorypro.service;
 
 import java.util.List;
+import java.util.UUID;
 import me.heyner.inventorypro.dto.InventoryDto;
-import me.heyner.inventorypro.exception.InventoryNotFoundException;
-import me.heyner.inventorypro.exception.UserNotFoundException;
+import me.heyner.inventorypro.exception.EntityNotFoundException;
 import me.heyner.inventorypro.model.Inventory;
 import me.heyner.inventorypro.model.User;
 import me.heyner.inventorypro.repository.InventoryRepository;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class InventoryService {
+
   private static final Logger logger = LoggerFactory.getLogger(InventoryService.class);
 
   private final InventoryRepository inventoryRepository;
@@ -29,56 +30,48 @@ public class InventoryService {
     this.userService = userService;
   }
 
-  public Inventory addInventory(String username, InventoryDto inventoryDto)
-      throws UserNotFoundException {
+  public InventoryDto addInventory(String username, InventoryDto inventoryDto)
+      throws EntityNotFoundException {
     Inventory inventory = modelMapper.map(inventoryDto, Inventory.class);
     User user = userService.loadUserByUsername(username);
     inventory.setUser(user);
-    inventoryRepository.save(inventory);
-    logger.info("Inventory saved: {}", inventory);
-    return inventory;
+    Inventory savedInventory = inventoryRepository.save(inventory);
+    logger.info("Inventory saved: {}", savedInventory);
+    return modelMapper.map(savedInventory, InventoryDto.class);
   }
 
-  public Inventory updateInventory(String username, int index, InventoryDto inventoryDto)
-      throws InventoryNotFoundException, UserNotFoundException {
-    Inventory inventory = getInventory(username, index);
+  public InventoryDto updateInventory(UUID uuid, InventoryDto inventoryDto)
+      throws EntityNotFoundException {
+    Inventory inventory =
+        inventoryRepository
+            .findById(uuid)
+            .orElseThrow(() -> new EntityNotFoundException("not found"));
     inventory.setName(inventoryDto.getName());
     inventoryRepository.save(inventory);
     logger.info("Inventory updated: {}", inventory);
-    return inventory;
+    return modelMapper.map(inventory, InventoryDto.class);
   }
 
-  public void deleteInventory(String username, int index)
-      throws InventoryNotFoundException, UserNotFoundException {
-    List<Inventory> inventories = getInventoriesByUsername(username);
-    try {
-      Inventory inventory = inventories.get(index);
-      inventoryRepository.deleteById(inventory.getId());
-      logger.info("Inventory deleted: {}", inventory.getId());
-    } catch (IndexOutOfBoundsException ex) {
-      logger.error(ex.getMessage(), ex);
-      throw new InventoryNotFoundException("Not found");
-    }
+  public void deleteInventory(UUID uuid) throws EntityNotFoundException {
+    inventoryRepository.deleteById(uuid);
+    logger.info("Inventory deleted: {}", uuid);
   }
 
-  public Inventory getInventory(String username, int index)
-      throws InventoryNotFoundException, UserNotFoundException {
-    List<Inventory> inventories = getInventoriesByUsername(username);
-    try {
-      Inventory inventory = inventories.get(index);
-      logger.info("Inventory found: {}", inventory);
-      return inventory;
-    } catch (IndexOutOfBoundsException ex) {
-      logger.error(ex.getMessage(), ex);
-      throw new InventoryNotFoundException("Not found");
-    }
+  public InventoryDto getInventory(UUID uuid) throws EntityNotFoundException {
+
+    Inventory inventory =
+        inventoryRepository
+            .findById(uuid)
+            .orElseThrow(() -> new EntityNotFoundException("Inventory not found"));
+
+    return modelMapper.map(inventory, InventoryDto.class);
   }
 
-  public List<Inventory> getInventoriesByUsername(String username)
+  public List<InventoryDto> getInventoriesByUsername(String username)
       throws UsernameNotFoundException {
     UserDetails user = userService.loadUserByUsername(username);
     List<Inventory> inventories = inventoryRepository.findByUser_username(username);
     logger.info("Getting {} inventories for user {}", inventories.size(), user);
-    return inventories;
+    return inventories.stream().map(inv -> modelMapper.map(inv, InventoryDto.class)).toList();
   }
 }

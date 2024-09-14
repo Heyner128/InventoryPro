@@ -1,11 +1,7 @@
 package me.heyner.inventorypro.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +9,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
@@ -21,28 +18,37 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Accessors(chain = true)
 @ToString
 @NoArgsConstructor
+@Table(
+    name = "application_user",
+    uniqueConstraints = {
+      @UniqueConstraint(columnNames = "email"),
+      @UniqueConstraint(columnNames = "username")
+    })
 public class User implements UserDetails {
 
-  @JsonIgnore @Id @GeneratedValue private Long id;
+  @JsonIgnore
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-
+  @Column(nullable = false)
   private String email;
 
-
+  @Column(nullable = false)
   private String username;
 
-
+  @Column(nullable = false)
   private String password;
 
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Enumerated(EnumType.STRING)
+  private List<Authority> authorities;
 
-  private String authority;
-
-  @JsonIgnore
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   @ToString.Exclude
   private List<Inventory> inventories;
 
-  @JsonIgnore
+
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   @ToString.Exclude
   private List<Product> products;
@@ -79,6 +85,8 @@ public class User implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of();
+    return authorities.stream()
+        .map(authority -> new SimpleGrantedAuthority(authority.toString()))
+        .toList();
   }
 }

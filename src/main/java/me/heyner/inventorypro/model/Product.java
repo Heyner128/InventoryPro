@@ -1,14 +1,12 @@
 package me.heyner.inventorypro.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
@@ -16,19 +14,22 @@ import org.springframework.data.annotation.CreatedDate;
 @Entity
 @Getter
 @Setter
+@Accessors(chain = true)
 @ToString
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "name"})})
 @NoArgsConstructor
 public class Product {
-  @JsonIgnore @Id @GeneratedValue private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-  @NotBlank(message = "The name of a product can't be empty")
-  @Column(unique = true, nullable = false)
+  @Column(nullable = false)
   private String name;
 
-  @NotBlank(message = "The description of a product can't be empty")
+  @Column(nullable = false)
   private String description;
 
-  @NotBlank(message = "The brand of a product can't be empty")
+  @Column(nullable = false)
   private String brand;
 
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
@@ -40,16 +41,17 @@ public class Product {
   private List<SKU> skus;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @NotNull
+  @JoinColumn(nullable = false)
   private User user;
 
-  @CreatedDate private LocalDate createdDate;
+  @CreatedDate private Date createdDate;
 
-  @UpdateTimestamp private LocalDate updateDate;
+  @UpdateTimestamp private Date updateDate;
 
-  @JsonProperty("id")
-  public final int getIndex() {
-    return user.getProducts().indexOf(this);
+  public Product addOption(Option option) {
+    this.getOptions().add(option);
+    option.setProduct(this);
+    return this;
   }
 
   @Override

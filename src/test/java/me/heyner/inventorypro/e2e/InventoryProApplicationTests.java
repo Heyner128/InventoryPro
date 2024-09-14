@@ -1,11 +1,10 @@
-package me.heyner.inventorypro;
+package me.heyner.inventorypro.e2e;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class InventoryProApplicationTests {
-
     @Test
     void contextLoads() {
     }

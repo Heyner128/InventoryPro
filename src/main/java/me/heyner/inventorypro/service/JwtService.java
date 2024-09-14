@@ -3,6 +3,8 @@ package me.heyner.inventorypro.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +12,9 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
+@Service
 public class JwtService {
 
   @Value("${security.jwt.secret-key}")
@@ -54,19 +58,23 @@ public class JwtService {
   }
 
   public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
-    return buildToken(claims, userDetails, jwtExpiration);
+    return buildToken(claims, userDetails, Clock.systemUTC(), jwtExpiration);
   }
 
   public long getExpirationTime() {
     return jwtExpiration;
   }
 
-  public String buildToken(Map<String, Object> claims, UserDetails userDetails, long expiration) {
+  public String buildToken(
+      Map<String, Object> claims, UserDetails userDetails, Clock clock, long expirationDelta) {
+
+    long currentMillis = Instant.now(clock).toEpochMilli();
+
     return Jwts.builder()
         .claims(claims)
         .subject(userDetails.getUsername())
-        .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + expiration))
+        .issuedAt(new Date(currentMillis))
+        .expiration(new Date(currentMillis + expirationDelta))
         .signWith(getSignInKey())
         .compact();
   }

@@ -1,14 +1,9 @@
 package me.heyner.inventorypro.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -23,36 +18,35 @@ import org.springframework.data.annotation.CreatedDate;
 @Table(
     uniqueConstraints = @UniqueConstraint(columnNames = {"sku_id", "option_id", "option_value_id"}))
 public class SKUValue {
-  @Id @GeneratedValue @JsonIgnore private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @JsonIgnore
+  private Long id;
 
-  @ManyToOne @NotNull private SKU sku;
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private SKU sku;
 
-  @DecimalMin(value = "0.0", inclusive = false, message = "The cost price should be positive")
-  @Digits(
-      integer = 20,
-      fraction = 2,
-      message =
-          "The cost price can't have more than 20 integer digits or more then 2 decimal digits")
+  @Column(nullable = false)
   private BigDecimal costPrice;
 
-  @Min(0)
+  @Column(nullable = false)
   private Long amountAvailable;
 
-  @Min(0)
+  @Column(nullable = false)
   private int marginPercentage;
 
-  @ManyToOne @NotNull private Option option;
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private Option option;
 
-  @ManyToOne @NotNull private OptionValue optionValue;
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private OptionValue optionValue;
 
-  @CreatedDate private LocalDate createdDate;
+  @CreatedDate private Date createdDate;
 
-  @UpdateTimestamp private LocalDate updateDate;
-
-  @JsonProperty("id")
-  public final int getIndex() {
-    return sku.getValues().indexOf(this);
-  }
+  @UpdateTimestamp private Date updateDate;
 
   @Override
   public final boolean equals(Object o) {

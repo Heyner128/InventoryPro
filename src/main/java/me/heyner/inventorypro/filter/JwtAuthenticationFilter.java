@@ -1,4 +1,4 @@
-package me.heyner.inventorypro.configuration;
+package me.heyner.inventorypro.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,11 +7,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import me.heyner.inventorypro.service.JwtService;
+import me.heyner.inventorypro.service.UserService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,15 +23,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
 
-  private final UserDetailsService userDetailsService;
+  private final UserService userService;
 
   public JwtAuthenticationFilter(
       HandlerExceptionResolver handlerExceptionResolver,
       JwtService jwtService,
-      UserDetailsService userDetailsService) {
+      UserService userService) {
     this.handlerExceptionResolver = handlerExceptionResolver;
     this.jwtService = jwtService;
-    this.userDetailsService = userDetailsService;
+    this.userService = userService;
   }
 
   @Override
@@ -48,12 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     try {
       final String jwt = authHeader.substring(7);
-      final String userEmail = jwtService.extractUsername(jwt);
+      final String username = jwtService.extractUsername(jwt);
 
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-      if (userEmail != null && authentication == null) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+      if (username != null && authentication == null) {
+        UserDetails userDetails = userService.loadUserByUsername(username);
 
         if (jwtService.isTokenValid(jwt, userDetails)) {
           UsernamePasswordAuthenticationToken authenticationToken =

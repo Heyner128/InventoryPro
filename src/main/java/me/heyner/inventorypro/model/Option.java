@@ -1,17 +1,15 @@
 package me.heyner.inventorypro.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,18 +17,22 @@ import org.springframework.data.annotation.CreatedDate;
 @Entity
 @Getter
 @Setter
+@Accessors(chain = true)
 @ToString
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "name"}))
 @NoArgsConstructor
 public class Option {
 
-  @JsonIgnore @Id @GeneratedValue private Long id;
+  @JsonIgnore
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-  @NotBlank(message = "The name of an option can't be empty")
+  @Column(nullable = false)
   private String name;
 
   @ManyToOne
-  @NotNull(message = "An option should have an associated product")
+  @JoinColumn(nullable = false)
   private Product product;
 
   @OneToMany(mappedBy = "option", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -41,13 +43,14 @@ public class Option {
   @ToString.Exclude
   private List<SKUValue> skuValues;
 
-  @CreatedDate private LocalDate createdDate;
+  @CreatedDate private Date createdDate;
 
-  @UpdateTimestamp private LocalDate updateDate;
+  @UpdateTimestamp private Date updateDate;
 
-  @JsonProperty("id")
-  public final int getIndex() {
-    return product.getOptions().indexOf(this);
+  public Option setProduct(Product product) {
+    product.getOptions().add(this);
+    this.product = product;
+    return this;
   }
 
   @Override
