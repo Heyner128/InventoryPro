@@ -3,8 +3,10 @@ package me.heyner.inventorypro.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
-import me.heyner.inventorypro.dto.SKUDto;
+import me.heyner.inventorypro.dto.SKUInputDto;
+import me.heyner.inventorypro.model.SKU;
 import me.heyner.inventorypro.service.SKUService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,18 +20,19 @@ public class SKUController {
   }
 
   @GetMapping
-  public List<SKUDto> getProductSKUs(@PathVariable UUID productUuid) {
+  public List<SKU> getProductSKUs(@PathVariable UUID productUuid) {
     return skuService.getSkus(productUuid);
   }
 
   @PostMapping
-  public SKUDto createSKU(@PathVariable UUID productUuid, @Valid @RequestBody SKUDto skuDto) {
+  @ResponseStatus(HttpStatus.CREATED)
+  public SKU createSKU(@PathVariable UUID productUuid, @Valid @RequestBody SKUInputDto skuDto) {
     return skuService.addSKU(productUuid, skuDto);
   }
 
   @PutMapping
-  public List<SKUDto> updateSKUs(
-      @PathVariable UUID productUuid, @RequestBody List<SKUDto> skuDtos) {
+  public List<SKU> updateSKUs(
+      @PathVariable UUID productUuid, @RequestBody List<SKUInputDto> skuDtos) {
     return skuService.updateSkus(productUuid, skuDtos);
   }
 }

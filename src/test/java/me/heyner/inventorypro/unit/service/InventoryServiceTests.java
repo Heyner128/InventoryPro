@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import me.heyner.inventorypro.dto.InventoryDto;
+import me.heyner.inventorypro.dto.InventoryInputDto;
 import me.heyner.inventorypro.model.Authority;
 import me.heyner.inventorypro.model.Inventory;
 import me.heyner.inventorypro.model.User;
@@ -20,9 +20,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-public class InventoryServiceTests {
+@ActiveProfiles("test")
+class InventoryServiceTests {
   private final InventoryService inventoryService;
   private final ModelMapper modelMapper = new ModelMapper();
   @MockBean private InventoryRepository inventoryRepository;
@@ -73,31 +75,28 @@ public class InventoryServiceTests {
 
   @Test
   public void addInventory() {
-    InventoryDto inventoryDto = modelMapper.map(inventory, InventoryDto.class);
-    InventoryDto newInventoryDto = inventoryService.addInventory(user.getUsername(), inventoryDto);
-    assertEquals(newInventoryDto, inventoryDto);
+    InventoryInputDto inventoryInputDto = modelMapper.map(inventory, InventoryInputDto.class);
+    Inventory newInventory = inventoryService.addInventory(user.getUsername(), inventoryInputDto);
+    assertEquals(newInventory, inventory);
   }
 
   @Test
   public void updateInventory() {
-    InventoryDto inventoryDto = modelMapper.map(inventory, InventoryDto.class);
-    InventoryDto savedInventoryDto =
-        inventoryService.updateInventory(inventory.getId(), inventoryDto);
-    assertEquals(inventoryDto, savedInventoryDto);
+    InventoryInputDto inventoryInputDto = modelMapper.map(inventory, InventoryInputDto.class);
+    Inventory savedInventory =
+        inventoryService.updateInventory(inventory.getId(), inventoryInputDto);
+    assertEquals(inventory.getName(), savedInventory.getName());
   }
 
   @Test
   public void getInventory() {
-    InventoryDto inventoryDto = modelMapper.map(inventory, InventoryDto.class);
-    InventoryDto gottenInventory = inventoryService.getInventory(inventory.getId());
-    assertEquals(inventoryDto, gottenInventory);
+    Inventory gottenInventory = inventoryService.getInventory(inventory.getId());
+    assertEquals(inventory, gottenInventory);
   }
 
   @Test
   public void getInventoriesByUsername() {
-    InventoryDto inventoryDto = modelMapper.map(inventory, InventoryDto.class);
-    List<InventoryDto> inventoriesDto =
-        inventoryService.getInventoriesByUsername(user.getUsername());
-    assertEquals(inventoryDto, inventoriesDto.getFirst());
+    List<Inventory> inventoriesDto = inventoryService.getInventoriesByUsername(user.getUsername());
+    assertEquals(inventory, inventoriesDto.getFirst());
   }
 }

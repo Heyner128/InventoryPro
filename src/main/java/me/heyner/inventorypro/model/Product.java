@@ -1,5 +1,6 @@
 package me.heyner.inventorypro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -7,9 +8,9 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Getter
@@ -34,23 +35,32 @@ public class Product {
 
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   @ToString.Exclude
+  @JsonIgnore
   private List<Option> options;
 
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   @ToString.Exclude
+  @JsonIgnore
   private List<SKU> skus;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(nullable = false)
+  @JsonIgnore
   private User user;
 
-  @CreatedDate private Date createdDate;
+  @CreationTimestamp private Date createdDate;
 
   @UpdateTimestamp private Date updateDate;
 
-  public Product addOption(Option option) {
-    this.getOptions().add(option);
-    option.setProduct(this);
+  public Product setOptions(List<Option> options) {
+    this.getOptions().forEach(opt -> opt.setProduct(this));
+    this.options = options;
+    return this;
+  }
+
+  public Product setSkus(List<SKU> skus) {
+    this.getSkus().forEach(sku -> sku.setProduct(this));
+    this.skus = skus;
     return this;
   }
 

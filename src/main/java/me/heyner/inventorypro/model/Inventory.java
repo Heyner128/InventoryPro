@@ -1,5 +1,6 @@
 package me.heyner.inventorypro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Map;
@@ -9,9 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Getter
@@ -33,13 +34,15 @@ public class Inventory {
       joinColumns = @JoinColumn(name = "inventory_id", referencedColumnName = "id"))
   @Column(name = "quantities")
   @MapKeyJoinColumn(name = "sku_id", referencedColumnName = "id")
+  @JsonIgnore
   private Map<SKU, Integer> items;
 
   @ManyToOne
   @JoinColumn(nullable = false)
+  @JsonIgnore
   private User user;
 
-  @CreatedDate private Date createdDate;
+  @CreationTimestamp private Date createdDate;
 
   @UpdateTimestamp private Date updateDate;
 

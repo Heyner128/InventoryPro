@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.UUID;
-import me.heyner.inventorypro.dto.ProductDto;
+import me.heyner.inventorypro.dto.ProductInputDto;
 import me.heyner.inventorypro.exception.EntityNotFoundException;
 import me.heyner.inventorypro.model.Product;
 import me.heyner.inventorypro.model.User;
@@ -34,37 +34,38 @@ public class ProductService {
     this.userService = userService;
   }
 
-  public List<ProductDto> getProducts(String username) throws EntityNotFoundException {
+  public List<Product> getProducts(String username) throws EntityNotFoundException {
     try {
       List<Product> products = productRepository.findByUser_username(username);
       logger.info("{} products found for user {}", products.size(), username);
-      return products.stream().map(pr -> modelMapper.map(pr, ProductDto.class)).toList();
+      return products;
     } catch (RuntimeException ex) {
       logger.error(ex.getMessage(), ex);
       throw new EntityNotFoundException("Not found");
     }
   }
 
-  public ProductDto createProduct(String username, ProductDto productDto)
+  public Product createProduct(String username, ProductInputDto productDto)
       throws EntityNotFoundException {
     Product product = modelMapper.map(productDto, Product.class);
     User user = userService.loadUserByUsername(username);
     product.setUser(user);
     Product savedProduct = productRepository.save(product);
     logger.info("{} Product successfully created", product.getName());
-    return modelMapper.map(savedProduct, ProductDto.class);
+    return savedProduct;
   }
 
-  public ProductDto getProduct(UUID uuid) throws EntityNotFoundException {
+  public Product getProduct(UUID uuid) throws EntityNotFoundException {
     Product product =
         productRepository
             .findById(uuid)
             .orElseThrow(() -> new EntityNotFoundException("Not found"));
       logger.info("Product {} found", product.getName());
-    return modelMapper.map(product, ProductDto.class);
+    return product;
   }
 
-  public ProductDto updateProduct(UUID uuid, ProductDto productDto) throws EntityNotFoundException {
+  public Product updateProduct(UUID uuid, ProductInputDto productDto)
+      throws EntityNotFoundException {
     Product productToUpdate =
         productRepository
             .findById(uuid)
@@ -74,7 +75,7 @@ public class ProductService {
     productToUpdate.setBrand(productDto.getBrand());
     Product savedProduct = productRepository.save(productToUpdate);
     logger.info("{} Product successfully updated", productToUpdate.getName());
-    return modelMapper.map(savedProduct, ProductDto.class);
+    return savedProduct;
   }
 
   public void deleteProduct(UUID uuid) throws EntityNotFoundException {

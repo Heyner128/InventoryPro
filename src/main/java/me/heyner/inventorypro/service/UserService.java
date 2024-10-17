@@ -7,7 +7,6 @@ import me.heyner.inventorypro.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -23,14 +22,14 @@ public class UserService implements UserDetailsService {
     this.userRepository = userRepository;
   }
 
-  public UserDto findByEmail(String email) throws EntityNotFoundException {
+  public User findByEmail(String email) throws EntityNotFoundException {
     User user =
         userRepository
             .findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     logger.info("Found user: {}", user);
-    return modelMapper.map(user, UserDto.class);
+    return user;
   }
 
   public UserDto updateUser(String username, UserDto userDto) {
@@ -39,9 +38,9 @@ public class UserService implements UserDetailsService {
     user.setUsername(userDto.getUsername());
     user.setEmail(userDto.getEmail());
     user.setAuthorities(userDto.getAuthorities());
-    userRepository.save(user);
+    User savedUser = userRepository.save(user);
     logger.info("Updated user: {}", user);
-    return modelMapper.map(user, UserDto.class);
+    return modelMapper.map(savedUser, UserDto.class);
   }
 
   @Override

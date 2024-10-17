@@ -3,8 +3,10 @@ package me.heyner.inventorypro.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
-import me.heyner.inventorypro.dto.OptionDto;
+import me.heyner.inventorypro.dto.OptionInputDto;
+import me.heyner.inventorypro.model.Option;
 import me.heyner.inventorypro.service.OptionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,19 +20,20 @@ public class OptionController {
   }
 
   @GetMapping
-  public List<OptionDto> getProductOptions(@PathVariable UUID productUuid) {
+  public List<Option> getProductOptions(@PathVariable UUID productUuid) {
     return optionService.getOptions(productUuid);
   }
 
   @PostMapping
-  public OptionDto createOption(
-      @PathVariable UUID productUuid, @RequestBody @Valid OptionDto optionDto) {
+  @ResponseStatus(HttpStatus.CREATED)
+  public Option createOption(
+      @PathVariable UUID productUuid, @RequestBody @Valid OptionInputDto optionDto) {
     return optionService.addOption(productUuid, optionDto);
   }
 
   @PutMapping()
-  public List<OptionDto> updateOptions(
-      @PathVariable UUID productUuid, @RequestBody @Valid List<OptionDto> optionDtos) {
+  public List<Option> updateOptions(
+      @PathVariable UUID productUuid, @RequestBody @Valid List<OptionInputDto> optionDtos) {
     return optionService.updateOptions(productUuid, optionDtos);
   }
 }

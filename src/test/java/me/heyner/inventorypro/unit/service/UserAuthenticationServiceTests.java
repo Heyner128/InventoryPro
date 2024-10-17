@@ -25,9 +25,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-public class UserAuthenticationServiceTests {
+@ActiveProfiles("test")
+class UserAuthenticationServiceTests {
 
   private static final String MOCK_USER = "test";
   private static final String MOCK_EMAIL = "test@test.com";
@@ -120,9 +122,9 @@ public class UserAuthenticationServiceTests {
 
   @Test
   public void findOne() {
-    UserDto foundUser;
+    User foundUser;
     foundUser = userService.findByEmail(user.getEmail());
-    assertEquals(foundUser, modelMapper.map(user, UserDto.class));
+    assertEquals(foundUser, user);
     assertThrows(
         EntityNotFoundException.class,
         () -> userService.findByEmail(UserAuthenticationServiceTests.FAKE_EMAIL));

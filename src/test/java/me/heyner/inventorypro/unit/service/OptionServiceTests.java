@@ -8,20 +8,15 @@ import java.util.UUID;
 import me.heyner.inventorypro.model.*;
 import me.heyner.inventorypro.repository.OptionRepository;
 import me.heyner.inventorypro.repository.ProductRepository;
-import me.heyner.inventorypro.service.OptionService;
-import me.heyner.inventorypro.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-public class OptionServiceTests {
-
-  private final OptionService optionService;
-
-  private final ModelMapper modelMapper = new ModelMapper();
+@ActiveProfiles("test")
+class OptionServiceTests {
 
   private Option mockOption;
 
@@ -29,18 +24,11 @@ public class OptionServiceTests {
 
   @MockBean private OptionRepository optionRepository;
 
-  @MockBean private ProductService productService;
-
   @Autowired private ProductRepository productRepository;
 
   @Autowired
-  public OptionServiceTests(
-      OptionRepository optionRepository,
-      ProductService productService,
-      OptionService optionService) {
+  public OptionServiceTests(OptionRepository optionRepository) {
     this.optionRepository = optionRepository;
-    this.productService = productService;
-    this.optionService = optionService;
   }
 
   public void setUpMocks() {
@@ -56,15 +44,14 @@ public class OptionServiceTests {
                     .setEmail("test@test.com")
                     .setPassword("TEst@1")
                     .setUsername("test")
-                    .setAuthorities(List.of(Authority.USER))
-                    .setProducts(List.of(mockProduct)));
+                    .setAuthorities(List.of(Authority.USER)));
 
     mockOption =
         new Option()
-            .setId(1L)
+            .setId(UUID.randomUUID())
             .setName("Color")
             .setProduct(mockProduct)
-            .setValues(List.of(new OptionValue().setId(1L).setValue("Red").setOption(mockOption)));
+            .setValues(List.of(new OptionValue().setId(1L).setValue("Red")));
   }
 
   @BeforeEach

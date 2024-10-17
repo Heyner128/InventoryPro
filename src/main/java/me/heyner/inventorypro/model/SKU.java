@@ -1,23 +1,23 @@
 package me.heyner.inventorypro.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Getter
 @Setter
-@Accessors(chain = true)
 @ToString
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "sku"})})
+@Accessors(chain = true)
 @NoArgsConstructor
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "option_value_id"}))
 public class SKU {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,11 +30,24 @@ public class SKU {
   @JoinColumn(nullable = false)
   private Product product;
 
-  @OneToMany(mappedBy = "sku", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  @ToString.Exclude
-  private List<SKUValue> values;
+  @Column(nullable = false)
+  private BigDecimal costPrice;
 
-  @CreatedDate private Date createdDate;
+  @Column(nullable = false)
+  private Long amountAvailable;
+
+  @Column(nullable = false)
+  private int marginPercentage;
+
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private Option option;
+
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private OptionValue optionValue;
+
+  @CreationTimestamp private Date createdDate;
 
   @UpdateTimestamp private Date updateDate;
 
@@ -51,8 +64,8 @@ public class SKU {
             ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
             : this.getClass();
     if (thisEffectiveClass != oEffectiveClass) return false;
-    SKU sku = (SKU) o;
-    return getId() != null && Objects.equals(getId(), sku.getId());
+    SKU skuValue = (SKU) o;
+    return getId() != null && Objects.equals(getId(), skuValue.getId());
   }
 
   @Override

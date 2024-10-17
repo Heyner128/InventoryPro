@@ -1,4 +1,4 @@
-package me.heyner.inventorypro.e2e;
+package me.heyner.inventorypro.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -19,9 +19,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UsersIntegrationTests {
+@ActiveProfiles("test")
+class UsersIntegrationTests {
 
   @Autowired TestRestTemplate restTemplate;
   @Autowired UserRepository userRepository;

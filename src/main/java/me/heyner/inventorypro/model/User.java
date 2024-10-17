@@ -38,20 +38,13 @@ public class User implements UserDetails {
   private String username;
 
   @Column(nullable = false)
+  @JsonIgnore
+  @ToString.Exclude
   private String password;
 
   @ElementCollection(fetch = FetchType.EAGER)
   @Enumerated(EnumType.STRING)
   private List<Authority> authorities;
-
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  @ToString.Exclude
-  private List<Inventory> inventories;
-
-
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  @ToString.Exclude
-  private List<Product> products;
 
   @Override
   public final boolean equals(Object o) {

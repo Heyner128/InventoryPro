@@ -3,13 +3,12 @@ package me.heyner.inventorypro.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Getter
@@ -17,7 +16,6 @@ import org.springframework.data.annotation.CreatedDate;
 @Accessors(chain = true)
 @ToString
 @NoArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "value"}))
 public class OptionValue {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +25,7 @@ public class OptionValue {
   @Column(nullable = false)
   private String value;
 
-  @ManyToOne private Option option;
-
-  @OneToMany(mappedBy = "optionValue", fetch = FetchType.LAZY)
-  @ToString.Exclude
-  private List<SKUValue> skuValues;
-
-  @CreatedDate private Date createdDate;
+  @CreationTimestamp private Date createdDate;
 
   @UpdateTimestamp private Date updateDate;
 
