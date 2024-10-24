@@ -28,6 +28,8 @@ var jjwtVersion = "0.12.6"
 
 var h2Version = "2.3.232"
 
+var azureVersion = "5.17.1"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-rest")
@@ -35,6 +37,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.session:spring-session-core")
+    implementation("com.azure.spring:spring-cloud-azure-dependencies:$azureVersion")
+    implementation("com.azure.spring:spring-cloud-azure-starter-keyvault:$azureVersion")
     implementation("org.modelmapper:modelmapper:$modelMapperVersion")
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     implementation("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
