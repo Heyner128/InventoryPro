@@ -60,7 +60,3 @@ jobs:
           app-name: 'inventory-pro'
           slot-name: 'Production'
           package: '*.jar'
-          type: 'JAR'
-          startup-command: 'java -jar site/wwwroot/app.jar'
-          restart: true
-          
