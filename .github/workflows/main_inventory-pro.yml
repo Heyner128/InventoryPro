@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle
-        run: gradle clean bootJar
+        run: gradle clean build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
