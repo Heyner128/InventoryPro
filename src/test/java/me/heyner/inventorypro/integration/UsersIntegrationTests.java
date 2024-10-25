@@ -9,7 +9,7 @@ import me.heyner.inventorypro.dto.LoginUserDto;
 import me.heyner.inventorypro.dto.RegisterUserDto;
 import me.heyner.inventorypro.dto.UserDto;
 import me.heyner.inventorypro.model.Authority;
-import me.heyner.inventorypro.repository.UserRepository;
+import me.heyner.inventorypro.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,10 +26,23 @@ import org.springframework.test.context.ActiveProfiles;
 class UsersIntegrationTests {
 
   @Autowired TestRestTemplate restTemplate;
+  @Autowired InventoryRepository inventoryRepository;
+  @Autowired SKURepository skuRepository;
+  @Autowired OptionRepository optionRepository;
+  @Autowired ProductRepository productRepository;
   @Autowired UserRepository userRepository;
+  
 
   @BeforeEach
   void setUp() {
+    inventoryRepository.deleteAll();
+
+    skuRepository.deleteAll();
+
+    optionRepository.deleteAll();
+
+    productRepository.deleteAll();
+
     userRepository.deleteAll();
   }
 
