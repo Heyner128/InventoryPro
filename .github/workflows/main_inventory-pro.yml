@@ -61,6 +61,6 @@ jobs:
           slot-name: 'Production'
           package: '*.jar'
           type: 'JAR'
-          startup-command: 'java -jar *.jar'
+          startup-command: 'java -jar sites/wwwroot/app.jar'
           restart: true
           
