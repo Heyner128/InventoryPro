@@ -48,7 +48,7 @@ dependencies {
 
     annotationProcessor("org.projectlombok:lombok")
 
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("com.mysql:mysql-connector-j")
 
     testRuntimeOnly("com.h2database:h2:$h2Version")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
