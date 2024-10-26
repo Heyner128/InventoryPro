@@ -30,6 +30,8 @@ var h2Version = "2.3.232"
 
 var azureVersion = "5.17.1"
 
+var springDocVersion = "2.6.0"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-rest")
@@ -37,6 +39,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.session:spring-session-core")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
     implementation("com.azure.spring:spring-cloud-azure-dependencies:$azureVersion")
     implementation("com.azure.spring:spring-cloud-azure-starter-keyvault:$azureVersion")
     implementation("org.modelmapper:modelmapper:$modelMapperVersion")
