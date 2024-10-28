@@ -4,10 +4,8 @@ import me.heyner.inventorypro.repository.ProductRepository;
 import me.heyner.inventorypro.service.UserService;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class ProductServiceTests {
   // TODO - write me pls
 

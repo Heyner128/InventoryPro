@@ -47,11 +47,13 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     implementation("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    compileOnly("org.springframework.boot:spring-boot-devtools")
 
     annotationProcessor("org.projectlombok:lombok")
 
-    runtimeOnly("com.mysql:mysql-connector-j")
+
+    runtimeOnly("com.h2database:h2:$h2Version")
+    runtimeOnly("org.postgresql:postgresql")
 
     testRuntimeOnly("com.h2database:h2:$h2Version")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
