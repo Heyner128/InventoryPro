@@ -32,6 +32,8 @@ var azureVersion = "5.17.1"
 
 var springDocVersion = "2.6.0"
 
+var mySqlVersion = "9.1.0"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -53,7 +55,7 @@ dependencies {
 
 
     runtimeOnly("com.h2database:h2:$h2Version")
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("com.mysql:mysql-connector-j:$mySqlVersion")
 
     testRuntimeOnly("com.h2database:h2:$h2Version")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
