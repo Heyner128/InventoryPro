@@ -28,7 +28,7 @@ public class Inventory {
   @Column(nullable = false)
   private String name;
 
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(
       name = "inventory_quantity",
       joinColumns = @JoinColumn(name = "inventory_id", referencedColumnName = "id"))
