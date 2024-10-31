@@ -1,5 +1,7 @@
 package me.heyner.inventorypro.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +13,8 @@ import me.heyner.inventorypro.service.InventoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@SecurityRequirement(name = "JWT token")
+@Tag(name = "Inventories")
 @RestController
 @RequestMapping("/users/{username}/inventory")
 public class InventoryController {
@@ -21,6 +25,7 @@ public class InventoryController {
     this.inventoryService = inventoryService;
   }
 
+  
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public Inventory createInventory(

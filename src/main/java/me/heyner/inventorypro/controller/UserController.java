@@ -1,5 +1,7 @@
 package me.heyner.inventorypro.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Users")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -52,11 +55,13 @@ public class UserController {
     return response;
   }
 
+  @SecurityRequirement(name = "JWT token")
   @GetMapping("/{username}")
   public UserDto getUser(@PathVariable String username) {
     return modelMapper.map(userService.loadUserByUsername(username), UserDto.class);
   }
 
+  @SecurityRequirement(name = "JWT token")
   @PutMapping("/{username}")
   public UserDto updateUser(@PathVariable String username, @RequestBody @Valid UserDto userDto) {
     return userService.updateUser(username, userDto);
