@@ -33,7 +33,7 @@ var azureVersion = "5.17.1"
 
 var springDocVersion = "2.6.0"
 
-var mySqlVersion = "9.1.0"
+var mariaDbVersion = "3.5.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -43,8 +43,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.session:spring-session-core")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
-    implementation("com.azure.spring:spring-cloud-azure-dependencies:$azureVersion")
-    implementation("com.azure.spring:spring-cloud-azure-starter-keyvault:$azureVersion")
     implementation("org.modelmapper:modelmapper:$modelMapperVersion")
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     implementation("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
@@ -54,9 +52,9 @@ dependencies {
 
     annotationProcessor("org.projectlombok:lombok")
 
-
     runtimeOnly("com.h2database:h2:$h2Version")
-    runtimeOnly("com.mysql:mysql-connector-j:$mySqlVersion")
+    runtimeOnly("org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion")
+    
 
     testRuntimeOnly("com.h2database:h2:$h2Version")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
