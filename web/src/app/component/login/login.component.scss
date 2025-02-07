@@ -1,0 +1,81 @@
+@use 'sass:color';
+@use 'styles' as *;
+
+.content {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.login-form {
+    margin-top: calc(2 * var(--size-xxlarge));
+    border-width: 3px;
+    border-style: solid;
+    border-color: rgba($color-grey, 0.5);
+    border-radius: var(--size-xxsmall);
+    padding: var(--size-xxlarge);
+}
+
+.login-form :is(h1, h2, h3) {
+    margin-bottom: calc(2 * var(--size-large));
+}
+
+.login-form form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--size-large);
+}
+
+.login-form__input {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-xxsmall);
+    width: 100%;
+} 
+
+.login-form__input label {
+    font-weight: bold;
+    font-size: var(--size-small);
+}
+
+
+.login-form__input input {
+    padding: var(--size-small);
+    border-radius: var(--size-xxsmall);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba($color-black, 0.5);
+
+    &:focus {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: rgba($color-secondary, 0.5);
+        outline-offset: 2px;
+        border-color: transparent;
+    }
+
+    &:hover {
+        border-color: rgba($color-black, 0.5);
+    }
+}
+
+.login-form__status {
+    color: var(--color-error-dark);
+    font-weight: bold;
+    font-size: var(--size-small);
+}
+
+.login-form__submit {
+    padding: var(--size-small);
+    border-radius: var(--size-xxsmall);
+    border-style: none;
+    background-color: var(--color-secondary);
+    color: var(--color-white);
+    font-weight: bold;
+    font-size: var(--size-small);
+
+    &:hover {
+        background-color: color.adjust($color-secondary, $lightness: -5%);
+    }
+}

@@ -1,0 +1,19 @@
+<button type="button" class="header__search-button" (click)="open()" [hidden]="searchOpen()">
+    <span class="material-symbols-outlined">search</span>
+</button>
+<div 
+    class="header__search-bar"
+    [@openClose]="searchOpen() ? 'open' : 'closed'"
+    (@openClose.done)="focusInput()"
+    #container
+>
+    <span class="material-symbols-outlined">search</span>
+    <input type="text" placeholder="Search anything"  #input/>
+</div>
+<app-popover
+    [(isOpen)]="searchOpen"
+    [anchorElement]="container"
+    [hidden]="!isInputFocused()"
+>
+    <div>Search results here</div>
+</app-popover>

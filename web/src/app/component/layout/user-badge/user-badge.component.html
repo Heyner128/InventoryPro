@@ -1,0 +1,18 @@
+<button class="user-badge__button" type="button" (click)="toggleMenu()" #button>
+    <span class="material-symbols-outlined">account_circle</span>
+    {{authenticationService.getUsername()}}
+</button>
+
+<app-popover
+    [(isOpen)]="isMenuOpen"
+    [anchorElement]="button"
+>
+    <button 
+        type="button"
+        (click)="logout()"
+    >
+        <span class="material-symbols-outlined">exit_to_app</span>
+        Logout
+    </button>
+</app-popover>
+

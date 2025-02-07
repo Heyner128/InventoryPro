@@ -1,0 +1,44 @@
+@use 'sass:color';
+@use 'styles' as *;
+
+:host {
+    --fixed-size: 30vw;
+}
+
+.header__search-button {
+    border: none;
+    border-radius: var(--size-xxsmall);
+    padding: var(--size-xxsmall);
+    background-color: transparent;
+    &:hover {
+        cursor: pointer;
+        background-color: color.adjust($color-background, $lightness: -10%)
+    }
+}
+
+.header__search-bar {
+    display: flex;
+    position: relative;
+    border-style: solid;
+    border-width: 1px;
+    padding: calc(0.5 * var(--size-xxsmall));
+    border-radius: var(--size-xxsmall);
+    border-color: var(--color-black);
+    overflow: hidden;
+
+    &:focus-within  {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: rgba($color-secondary, 0.5);
+        outline-offset: 2px;
+    }
+
+    & input {
+        border: none;
+        background-color: transparent;
+        width: 100%;
+        &:focus {
+            outline: none;
+        }
+    }
+}
