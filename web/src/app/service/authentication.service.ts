@@ -14,6 +14,7 @@ export class AuthenticationService {
 
   private getCookie(name: string): string | undefined {
     try {
+
       const cookies: string[] = document.cookie.split(';') ?? [];  
       return cookies
         .find((cookie) => cookie.startsWith(`${name}=`))

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PopoverComponent } from './popover.component';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('PopoverComponent', () => {
   let component: PopoverComponent;
@@ -8,12 +9,15 @@ describe('PopoverComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PopoverComponent]
+      imports: [PopoverComponent],
+      providers: [provideHttpClient()]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(PopoverComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('isOpen', false);
+    fixture.componentRef.setInput('anchorElement', document.createElement('div'));
     fixture.detectChanges();
   });
 

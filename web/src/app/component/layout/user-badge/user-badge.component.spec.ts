@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UserBadgeComponent } from './user-badge.component';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('UserBadgeComponent', () => {
   let component: UserBadgeComponent;
@@ -8,7 +9,8 @@ describe('UserBadgeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UserBadgeComponent]
+      imports: [UserBadgeComponent],
+      providers: [provideHttpClient()]
     })
     .compileComponents();
 

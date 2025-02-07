@@ -88,11 +88,22 @@
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
+          "configurations": {
+            "development": {
+              "sourceMap": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
+            }
+          },
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/"]
+            },
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {
@@ -100,11 +111,14 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ],
-            "scripts": []
-          }
+            "styles": ["src/styles.scss"],
+            "scripts": [],
+            "watch": false,
+            "browsers": "FirefoxDeveloperHeadless",
+            "codeCoverage": true,
+            "karmaConfig": "karma.conf.js"
+          },
+          "defaultConfiguration": "development"
         }
       }
     }
