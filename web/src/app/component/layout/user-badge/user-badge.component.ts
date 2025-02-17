@@ -15,9 +15,13 @@ export class UserBadgeComponent {
   isMenuOpen: WritableSignal<boolean> = signal(false); 
 
   constructor(
-    public readonly authenticationService: AuthenticationService,
+    private readonly authenticationService: AuthenticationService,
     private readonly router: Router
   ) {}
+
+  getUsername() {
+    return this.authenticationService.getUsername();
+  }
 
   toggleMenu() {
     this.isMenuOpen.set(!this.isMenuOpen());
@@ -25,7 +29,14 @@ export class UserBadgeComponent {
 
   logout() {
     this.authenticationService.logout().subscribe(() => {
-      this.router.navigate(['login'])
+      this.router.navigate(
+        ['login'],
+        {
+          queryParams: {
+            redirectUrl: this.router.url,
+          },
+        } 
+      )
     })
   }
 }

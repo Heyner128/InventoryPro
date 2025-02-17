@@ -41,23 +41,7 @@
 
 
 .login-form__input input {
-    padding: var(--size-small);
-    border-radius: var(--size-xxsmall);
-    border-width: 1px;
-    border-style: solid;
-    border-color: rgba($color-black, 0.5);
-
-    &:focus {
-        outline-width: 2px;
-        outline-style: solid;
-        outline-color: rgba($color-secondary, 0.5);
-        outline-offset: 2px;
-        border-color: transparent;
-    }
-
-    &:hover {
-        border-color: rgba($color-black, 0.5);
-    }
+    @include input;
 }
 
 .login-form__status {
@@ -67,15 +51,5 @@
 }
 
 .login-form__submit {
-    padding: var(--size-small);
-    border-radius: var(--size-xxsmall);
-    border-style: none;
-    background-color: var(--color-secondary);
-    color: var(--color-white);
-    font-weight: bold;
-    font-size: var(--size-small);
-
-    &:hover {
-        background-color: color.adjust($color-secondary, $lightness: -5%);
-    }
+    @include button-secondary;
 }

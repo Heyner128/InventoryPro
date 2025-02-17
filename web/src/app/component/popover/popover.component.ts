@@ -1,7 +1,7 @@
 
 import { NgStyle } from '@angular/common';
-import { AfterViewInit, Component, effect, ElementRef, HostListener, Injector, input,  InputSignal, model, ModelSignal, signal, ViewChild, WritableSignal } from '@angular/core';
-import { autoUpdate, computePosition, offset, shift } from '@floating-ui/dom';
+import { Component, effect, ElementRef, HostListener, Injector, input,  InputSignal, model, ModelSignal, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
+import { autoUpdate, computePosition, offset, shift, arrow } from '@floating-ui/dom';
 
 @Component({
   selector: 'app-popover',
@@ -9,8 +9,9 @@ import { autoUpdate, computePosition, offset, shift } from '@floating-ui/dom';
   templateUrl: './popover.component.html',
   styleUrl: './popover.component.scss'
 })
-export class PopoverComponent implements AfterViewInit {
+export class PopoverComponent implements OnInit {
   positionStyles: Record<string, string> = {};
+  arrowPositionStyles: Record<string, string> = {};
   isOpen: ModelSignal<boolean> = model.required();
   anchorElement: InputSignal<HTMLElement>  = input.required<HTMLElement>();
 
@@ -20,15 +21,17 @@ export class PopoverComponent implements AfterViewInit {
   @ViewChild('popover')
   popover!: ElementRef<HTMLDivElement>;
 
+  @ViewChild('arrow')
+  arrow!: ElementRef<HTMLDivElement>;
+
   constructor(private readonly injector: Injector, private readonly elementRef: ElementRef) {}
   
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this.initAutoUpdate();
   }
 
   initAutoUpdate() {
     let cleanAutoUpdate: () => void | undefined;
-    let cleanCloseOnBlur: () => void | undefined;
     effect((onCleanup) => {
       if (this.isOpen()) {
         cleanAutoUpdate = autoUpdate(
@@ -59,16 +62,42 @@ export class PopoverComponent implements AfterViewInit {
       this.popover.nativeElement,
       {
         placement: 'bottom',
-        middleware: [offset(10), shift()],
+        middleware: [
+          offset(10),
+          shift({
+            padding: 10
+          }),
+          arrow({
+            element: this.arrow.nativeElement,
+          })
+        ],
       }
     ).then(
-      ({ x, y}) => {
+      ({ x, y, placement, middlewareData}) => {
+        const {x: arrowX, y: arrowY} = middlewareData.arrow ?? {};
+
         this.x.set(x);
         this.y.set(y);
         this.positionStyles = {
           left: `${this.x()}px`,
           top: `${this.y()}px`,
         };
+
+        const staticSide = {
+          top: 'bottom',
+          right: 'left',
+          bottom: 'top',
+          left: 'right',
+        }[placement.split('-')[0]];
+ 
+
+        this.arrowPositionStyles = {
+          left: arrowX != null ? `${arrowX}px` : '',
+          top: arrowY != null ? `${arrowY}px` : '',
+          right: '',
+          bottom: '',
+          [staticSide ?? '']: '-4px',
+        }; 
       }
     );
   }

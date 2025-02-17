@@ -3,7 +3,6 @@ package me.heyner.inventorypro.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.Value;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +15,11 @@ import me.heyner.inventorypro.service.AuthenticationService;
 import me.heyner.inventorypro.service.JwtService;
 import me.heyner.inventorypro.service.UserService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import static org.springframework.http.ResponseCookie.ResponseCookieBuilder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Users")
@@ -35,6 +34,9 @@ public class UserController {
   private final JwtService jwtService;
 
   private final ModelMapper modelMapper = new ModelMapper();
+  
+  @Value("${spring.profiles.active}")
+  private String profile;
 
   public UserController(
       UserService userService, JwtService jwtService, AuthenticationService authenticationService) {
@@ -63,7 +65,7 @@ public class UserController {
     ResponseCookie sessionCookie =
         ResponseCookie.from(Cookies.SESSION_TOKEN, jwtToken)
             .httpOnly(true)
-            .secure(true)
+            .secure(!profile.equals("dev"))
             .path("/")
             .maxAge(jwtService.getJwtExpiration())
             .build();

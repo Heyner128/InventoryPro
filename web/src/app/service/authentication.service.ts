@@ -36,7 +36,7 @@ export class AuthenticationService {
 
   isAuthenticated(): Observable<boolean> {
     return this.httpClient.get(
-      environment.apiBaseUrl + '/users/' + (this.getUsername() ?? 'NO_USER'),
+      environment.apiBaseUrl + '/users/' + (this.getUsername()),
       {
         observe: 'response'
       }
@@ -63,7 +63,7 @@ export class AuthenticationService {
   logout() {
     return this.httpClient
       .post(
-        `${environment.apiBaseUrl}/users/${this.getUsername() ?? 'NO_USER'}/logout`,
+        `${environment.apiBaseUrl}/users/${this.getUsername()}/logout`,
         {},
         {
           observe: 'response',

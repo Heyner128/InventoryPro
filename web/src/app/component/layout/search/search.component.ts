@@ -1,5 +1,5 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, Host, HostListener, signal, ViewChild } from '@angular/core';
+import { animate, state, style, transition, trigger, AnimationEvent } from '@angular/animations';
+import { Component, computed, ElementRef, HostListener, linkedSignal, signal, ViewChild } from '@angular/core';
 import { PopoverComponent } from "../../popover/popover.component";
 
 @Component({
@@ -34,27 +34,32 @@ import { PopoverComponent } from "../../popover/popover.component";
   styleUrl: './search.component.scss'
 })
 export class SearchComponent {
-  searchOpen = signal(false);
+  isSearchOpen = signal(false);
   isInputFocused = signal(false);
+  isSearchCompletelyOpen = linkedSignal(() => this.isSearchOpen() && this.isInputFocused());
   @ViewChild('input') searchInput: ElementRef<HTMLInputElement> | undefined;
 
   constructor(private readonly elementRef: ElementRef) {}
 
-  focusInput() {
-    if (this.searchInput) {
+  onAnimationChange(event: AnimationEvent) {
+    if (
+      this.searchInput &&
+      event.toState === 'open' &&
+      event.phaseName === 'done'
+    ) {
       this.searchInput.nativeElement.focus();
       this.isInputFocused.set(true);
     }
   }
 
   open() {
-    this.searchOpen.set(true);
+    this.isSearchOpen.set(true);
   }
 
   @HostListener('document:click', ['$event'])
   close(event: MouseEvent) {
     if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.searchOpen.set(false);
+      this.isSearchOpen.set(false);
       this.isInputFocused.set(false);
     }
   }

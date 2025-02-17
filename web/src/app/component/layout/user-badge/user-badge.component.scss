@@ -5,7 +5,7 @@
     display: flex;
     align-items: center;
     gap: var(--size-xxsmall);
-    border-radius: var(--size-small);
+    border-radius: calc(0.5 * var(--size-xxsmall));
     padding: var(--size-small);
     border: none;
     background-color: transparent;
@@ -19,4 +19,20 @@
     &:focus{
         background-color: color.adjust($color-background, $lightness: -10%);
     }
+}
+
+.user-badge__popover-item {
+    min-width: calc(10 * var(--size-xxlarge));
+    padding: var(--size-small);
+    font-size: var(--size-small);
+}
+
+.user-badge__popover-item__title {
+    font-weight: bold;
+    text-align: center;
+    padding: var(--size-medium);
+}
+
+.user-badge__popover-item .material-symbols-outlined {
+    font-size: var(--size-xlarge);
 }

@@ -12,9 +12,7 @@ import me.heyner.inventorypro.model.Cookies;
 import me.heyner.inventorypro.service.JwtService;
 import me.heyner.inventorypro.service.UserService;
 
-import org.antlr.v4.runtime.atn.SemanticContext.OR;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;

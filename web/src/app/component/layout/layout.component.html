@@ -7,8 +7,8 @@
 <aside class="nav">
     <nav aria-label="main-navigation">
         <ul>
-            <li class="nav__item"><a routerLink="/" routerLinkActive="active">
-                <span class="material-symbols-outlined">inventory_2</span>
+            <li class="nav__item"><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <span class="material-symbols-outlined">home</span>
             </a></li>
             <li class="nav__item"><a routerLink="/inventories" routerLinkActive="active">
                 <span class="material-symbols-outlined">source_environment</span>
@@ -20,6 +20,5 @@
     </nav>
 </aside>
 <main class="content">
-    Here should be the content
     <router-outlet></router-outlet>
 </main>

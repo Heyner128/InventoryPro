@@ -31,7 +31,7 @@
 
 .nav__item a {
     display: block;
-    padding: 0;
+    padding: var(--size-medium);
     text-decoration: none;
     color: rgba(255,255,255,0.7);
     &:hover {
@@ -48,13 +48,14 @@
 
 
 .nav__item .material-symbols-outlined {
-    margin: var(--size-small);
-    font-size: calc(1.5 * var(--size-medium));
+    font-size: calc(1.5 * var(--size-large));
 }
 
 .content {
     grid-area: main;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {

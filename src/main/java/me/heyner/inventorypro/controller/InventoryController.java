@@ -12,6 +12,9 @@ import me.heyner.inventorypro.model.Inventory;
 import me.heyner.inventorypro.service.InventoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @SecurityRequirement(name = "JWT token")
 @Tag(name = "Inventories")
@@ -25,6 +28,11 @@ public class InventoryController {
     this.inventoryService = inventoryService;
   }
 
+  @GetMapping
+  public List<Inventory> getMethodName(@PathVariable String username) {
+      return inventoryService.getInventoriesByUsername(username);
+  }
+  
   
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)

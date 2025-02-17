@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
+import { isPlatformServer } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,10 @@ import { HttpResponse } from '@angular/common/http';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+
+
+  isServer = false;
+
   loginForm = new FormGroup({
     username: new FormControl(''),
     password: new FormControl('')
@@ -20,8 +25,11 @@ export class LoginComponent {
 
   constructor(
     private readonly authenticationService: AuthenticationService,
-    private readonly router: Router
-  ) {}
+    private readonly router: Router,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
+  ) {
+    this.isServer = isPlatformServer(this.platformId);
+  }
 
   private getRedirectUrl(): string {
     const url = this.router.parseUrl(this.router.url);
