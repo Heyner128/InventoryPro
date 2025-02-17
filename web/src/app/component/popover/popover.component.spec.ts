@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PopoverComponent } from './popover.component';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('PopoverComponent', () => {
   let component: PopoverComponent;
@@ -10,7 +10,7 @@ describe('PopoverComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PopoverComponent],
-      providers: [provideHttpClient()]
+      providers: [provideHttpClientTesting()]
     })
     .compileComponents();
 

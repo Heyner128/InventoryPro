@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger, AnimationEvent } from '@angular/animations';
-import { Component, computed, ElementRef, HostListener, linkedSignal, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, linkedSignal, signal, ViewChild } from '@angular/core';
 import { PopoverComponent } from "../../popover/popover.component";
 
 @Component({
