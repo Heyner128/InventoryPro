@@ -4,6 +4,7 @@ import { AuthenticationService } from './authentication.service';
 import { HttpRequest, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from '../../environments/environment';
+import { catchError, of } from 'rxjs';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
@@ -72,8 +73,12 @@ describe('AuthenticationService', () => {
   });
 
   it('login should fail if the credentials are incorrect', () => {
-    service.login('randomusername', 'randompassword').subscribe((response) => {
-      expect(response.ok).toBeFalse();
+    service.login('randomusername', 'randompassword')
+    .pipe(
+      catchError(error => of(error))
+    )
+    .subscribe((response) => {
+      expect(response.status).toBe(401);
     });
 
     const req = httpTesting.expectOne((req: HttpRequest<any>) => {

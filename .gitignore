@@ -36,3 +36,9 @@ out/
 
 #Secrets
 .env
+
+#node
+
+**/node_modules
+**/.angular
+**/coverage

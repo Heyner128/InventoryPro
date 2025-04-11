@@ -114,7 +114,6 @@
             "styles": ["src/styles.scss"],
             "scripts": [],
             "watch": false,
-            "browsers": "FirefoxDeveloperHeadless",
             "codeCoverage": true,
             "karmaConfig": "karma.conf.js"
           },
