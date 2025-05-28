@@ -1,15 +1,11 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { InventoriesService } from '../../../service/inventories.service';
-import { Router } from '@angular/router';
-import { DialogRef } from '@angular/cdk/dialog';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ApiError } from '../../../model/apiError';
-import { catchError, of } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-create',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss'
 })
@@ -17,39 +13,30 @@ export class CreateComponent {
 
   inventoryForm = new FormGroup({
     name: new FormControl(''),
+    description: new FormControl(''),
   });
 
   statusMessage: string | undefined;
 
   constructor(
     private readonly inventoriesService: InventoriesService,
-    public dialogRef: DialogRef
+    private readonly router: Router
   ) {
   }
 
   create() {
     if (!this.inventoryForm.value.name) return;
     this.inventoriesService
-      .createInventory(this.inventoryForm.value.name)
-      .pipe(
-        catchError(
-          error => {
-            if (error instanceof HttpErrorResponse) {
-              const errorResponse = error.error as ApiError;
-              this.statusMessage = errorResponse.message;
-            } else {
-              this.statusMessage = 'Error creating inventory';
-            }
-            return of();
-          }
-        )
-      )
-      .subscribe(
-        () => {
-            this.dialogRef.close();
-            window.location.reload();
-        }
-      )
+      .createInventory({
+        name: this.inventoryForm.value.name,
+        description: this.inventoryForm.value.description ?? ""
+      })
+      .subscribe({
+        next: () => {
+          this.router.navigate(["/inventories"]);
+        },
+        error: (message) => (this.statusMessage = message),
+      });
   }
 
 }

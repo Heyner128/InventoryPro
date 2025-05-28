@@ -1,84 +1,70 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit} from '@angular/core';
 import { InventoriesService } from '../../service/inventories.service';
 import { Inventory } from '../../model/inventory';
 import RelativeTimeElement from '@github/relative-time-element';
-import { createAngularTable, createColumnHelper, FlexRenderDirective, getCoreRowModel } from '@tanstack/angular-table';
-import { HttpResponse } from '@angular/common/http';
-import { catchError, map, of } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { createAngularTable, createColumnHelper, FlexRenderDirective, getCoreRowModel, Table } from '@tanstack/angular-table';
 import { DomSanitizer } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
-import { Dialog } from '@angular/cdk/dialog';
-import { CreateComponent as CreateInventoryComponent } from './create/create.component';
-
-type SafeHtml = {
-  changingThisBreaksApplicationSecurity: string;
-}
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-inventories',
+  selector: "app-inventories",
   imports: [FlexRenderDirective, RouterLink],
-  templateUrl: './inventories.component.html',
-  styleUrl: './inventories.component.scss',
+  templateUrl: "./inventories.component.html",
+  styleUrl: "./inventories.component.scss",
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class InventoriesComponent {
+export class InventoriesComponent implements OnInit {
   private readonly columnHelper = createColumnHelper<Inventory>();
-  private readonly inventories$ = inject(InventoriesService).getInventories();
-  sanitizer = inject(DomSanitizer);
-  dialog = inject(Dialog);
-  inventories = toSignal(
-    this.inventories$.pipe(
-      catchError(error => {
-        console.error(error);
-        return of();
-      }),
-      map((response: HttpResponse<Inventory[]>) =>
-        response.body as Inventory[]
-      )
-    ),
-    { initialValue: undefined }
-  );
+  inventories?: Inventory[];
+  
   columns = [
-    this.columnHelper.accessor('name', {
-      header: 'Name',
+    this.columnHelper.accessor("name", {
+      header: "Name",
+    }),
+    this.columnHelper.accessor("description", {
+      header: "Description",
+    }),
+    this.columnHelper.accessor("createdAt", {
+      header: "Created",
       cell: (cell) =>
         this.sanitizer.bypassSecurityTrustHtml(
-          `<a
-            class="default-link-style"
-            routerLink="/inventories/${cell.row.original.id}"
-          >${cell.getValue()}</a>`
+          `<relative-time datetime="${cell.getValue()}"></relative-time>`
         ),
     }),
-    this.columnHelper.accessor('createdAt', {
-      header: 'Created',
+    this.columnHelper.accessor("updatedAt", {
+      header: "Updated",
       cell: (cell) =>
         this.sanitizer.bypassSecurityTrustHtml(
-          `<relative-time datetime="${cell
-            .getValue()}"></relative-time>`
+          `<relative-time datetime="${cell.getValue()}"></relative-time>`
         ),
-    }),
-    this.columnHelper.accessor('updatedAt', {
-      header: 'Updated',
-      cell: (cell) => 
-        this.sanitizer.bypassSecurityTrustHtml(
-          `<relative-time datetime="${cell
-            .getValue()}"></relative-time>`
-        )
     }),
   ];
-  table = createAngularTable(() => ({
-    data: this.inventories() ?? [],
-    columns: this.columns,
-    getCoreRowModel: getCoreRowModel(),
-  }));
+  table: Table<Inventory> | undefined;
 
-  constructor() {
+  constructor(
+    private readonly inventoriesService: InventoriesService,
+    private readonly router: Router,
+    private readonly sanitizer: DomSanitizer
+  ) {
     console.debug(`Loaded web component ${RelativeTimeElement.name}`);
+    
   }
-
-  openCreateDialog() {
-    this.dialog.open(CreateInventoryComponent);
+  ngOnInit(): void {
+    this.inventoriesService.getInventories().subscribe({
+      next: (inventories) => {
+        this.inventories = inventories;
+        this.table = createAngularTable(() => ({
+          data: inventories,
+          columns: this.columns,
+          getCoreRowModel: getCoreRowModel(),
+        }));
+      },
+      error: () => {
+        this.router.navigate(["/error"], {
+          skipLocationChange: true,
+        });
+      },
+    });
   }
 }
 

@@ -3,30 +3,25 @@
         <h1>Inventories</h1>
         <h2>Create and manage inventories</h2>
     </div>
-    <div class="inventories__header-actions">
-        <button type="button" (click)="openCreateDialog()">New Inventory</button>
-    </div>
+    <a routerLink="/inventories/create" >New Inventory</a>
 </div>
 <table class="inventories__table">
     <thead>
         <tr>
             <th>Name</th>
+            <th>Description</th>
             <th>Created</th>
             <th>Updated</th>
         </tr>
     </thead>
     <tbody>
-        @if(inventories() === null) {
-            <tr class="inventories__table-row--message">
-                <td colspan="3">Error getting inventories</td>
-            </tr>
-        } @else if(inventories() === undefined) {
-            <tr class="inventories__table-row--message">
-                <td colspan="3">Loading inventories...</td>
+        @if(table === undefined || inventories === undefined) {
+            <tr class="inventories__table-row--merged">
+                <td colspan="4">Loading inventories...</td>
             </tr>
         } @else if(table.getRowModel().rows.length === 0) {
-            <tr class="inventories__table-row--message">
-                <td colspan="3">No inventories found</td>
+            <tr class="inventories__table-row--merged">
+                <td colspan="4">No inventories found</td>
             </tr>
         } @else {
             @for (row of table.getRowModel().rows; track row.id) {

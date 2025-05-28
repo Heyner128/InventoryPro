@@ -1,13 +1,12 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
 import { AuthenticationService } from '../../service/authentication.service';
-import { Router } from '@angular/router';
-import { HttpResponse } from '@angular/common/http';
+import { Router, RouterLink } from '@angular/router';
 import { isPlatformServer } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -37,17 +36,18 @@ export class LoginComponent {
   }
 
   login() {
-    if(!this.loginForm.value.username || !this.loginForm.value.password) return;
+    if (!this.loginForm.value.username || !this.loginForm.value.password)
+      return;
     this.authenticationService
       .login(this.loginForm.value.username, this.loginForm.value.password)
-      .subscribe(
-        (response: HttpResponse<Object>) => {
-          if(response.ok) {
-            this.router.navigate([this.getRedirectUrl()]);
-          } else {
-            this.statusMessage = 'Invalid credentials';
-          }
+      .subscribe({
+        next: () => {
+          this.router.navigateByUrl(this.getRedirectUrl());
+        },
+        error: (message) => {
+          this.statusMessage = message
         }
-      )
+        , 
+      });
   }
 }

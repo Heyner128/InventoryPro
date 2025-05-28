@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { catchError, map, Observable, of } from 'rxjs';
 import { NewUser } from '../model/newUser';
+import { User } from '../model/user';
 
 @Injectable({
   providedIn: 'root',
@@ -42,12 +43,12 @@ export class AuthenticationService {
         observe: 'response'
       }
     ).pipe(
-      catchError(errorResponse => of(errorResponse)),
+      catchError((_: Error) => of({ok: false})),
       map(response => response.ok)
     )
   }
 
-  login(username: string, password: string): Observable<HttpResponse<Object>> {
+  login(username: string, password: string): Observable<User> {
     return this.httpClient
       .post(
         `${environment.apiBaseUrl}/users/login`,
@@ -55,10 +56,14 @@ export class AuthenticationService {
         { 
           observe: 'response'
         }
+      ).pipe(
+        map(
+          response => response.body as User
+        )
       )
   }
 
-  logout() {
+  logout(): Observable<{}> {
     return this.httpClient
       .post(
         `${environment.apiBaseUrl}/users/${this.getUsername()}/logout`,
@@ -66,10 +71,14 @@ export class AuthenticationService {
         {
           observe: 'response',
         }
+      ).pipe(
+        map(
+          () => ({}) 
+        )
       )
   }
 
-  signup(newUser: NewUser): Observable<HttpResponse<Object>> {
+  signup(newUser: NewUser): Observable<User> {
     return this.httpClient
       .post(
         `${environment.apiBaseUrl}/users`,
@@ -78,5 +87,10 @@ export class AuthenticationService {
           observe: 'response',
         }
       )
+      .pipe(
+        map(
+          response => response.body as User
+        )
+      );
   }
 }

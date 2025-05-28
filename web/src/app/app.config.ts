@@ -8,13 +8,15 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { requestedWithInterceptor } from './interceptor/requested-with.interceptor';
 import { withCredentialsInterceptor } from './interceptor/with-credentials.interceptor';
+import { error } from 'console';
+import { errorInterceptor } from './interceptor/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([requestedWithInterceptor, withCredentialsInterceptor]),
+      withInterceptors([requestedWithInterceptor, withCredentialsInterceptor, errorInterceptor]),
       withFetch()
     ),
     provideClientHydration(withEventReplay()),

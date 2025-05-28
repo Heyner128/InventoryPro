@@ -13,6 +13,8 @@ export class PopoverComponent implements OnInit {
   positionStyles: Record<string, string> = {};
   arrowPositionStyles: Record<string, string> = {};
   isOpen: ModelSignal<boolean> = model.required();
+  offset: InputSignal<number> = input<number>(10);
+  shift: InputSignal<number> = input<number>(10);
   anchorElement: InputSignal<HTMLElement>  = input.required<HTMLElement>();
 
   x: WritableSignal<number> = signal(0);
@@ -63,9 +65,9 @@ export class PopoverComponent implements OnInit {
       {
         placement: 'bottom',
         middleware: [
-          offset(10),
+          offset(this.offset()),
           shift({
-            padding: 10
+            padding: this.shift(),
           }),
           arrow({
             element: this.arrow.nativeElement,

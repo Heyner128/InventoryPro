@@ -2,36 +2,101 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthenticationService } from './authentication.service';
 import { environment } from '../../environments/environment';
-import {  Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import type { Inventory } from '../model/inventory';
-import { ApiError } from '../model/apiError';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class InventoriesService {
-
   constructor(
     private readonly httpClient: HttpClient,
     private readonly authenticationService: AuthenticationService
   ) {}
-  
-  getInventories(): Observable<HttpResponse<Inventory[]>> {
+
+  getInventories(): Observable<Inventory[]> {
     return this.httpClient.get<Inventory[]>(
-      `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/inventory`,
+      `${
+        environment.apiBaseUrl
+      }/users/${this.authenticationService.getUsername()}/inventory`,
       {
-        observe: 'response'
+        observe: "response",
       }
-    )
+    ).pipe(
+      map((response: HttpResponse<Inventory[]>) => {
+        return response.body || [];
+      })
+    );
   }
 
-  createInventory(name: string): Observable<HttpResponse<Inventory>> {
-    return this.httpClient.post<Inventory>(
-      `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/inventory`,
-      { name },
+  getInventory(uuid: string): Observable<Inventory> {
+    return this.httpClient.get<Inventory>(
+      `${
+        environment.apiBaseUrl
+      }/users/${this.authenticationService.getUsername()}/inventory/${uuid}`,
       {
-        observe: 'response'
+        observe: "response",
       }
+    ).pipe(
+      map((response: HttpResponse<Inventory>) => {
+        return response.body || {} as Inventory;
+      })
+    );
+  }
+
+  createInventory(inventory: {
+    name: string,
+    description?: string
+  }): Observable<Inventory> {
+    return this.httpClient.post<Inventory>(
+      `${
+        environment.apiBaseUrl
+      }/users/${this.authenticationService.getUsername()}/inventory`,
+      inventory,
+      {
+        observe: "response",
+      }
+    ).pipe(
+      map((response: HttpResponse<Inventory>) => {
+        return response.body || {} as Inventory;
+      })
+    );
+  }
+
+  updateInventory(
+    uuid: string,
+    inventory: {
+      name: string,
+      description?: string
+    }  
+  ): Observable<Inventory> {
+    return this.httpClient.put<Inventory>(
+      `${
+        environment.apiBaseUrl
+      }/users/${this.authenticationService.getUsername()}/inventory/${uuid}`,
+      inventory,
+      {
+        observe: "response",
+      }
+    ).pipe(
+      map((response: HttpResponse<Inventory>) => {
+        return response.body || {} as Inventory;
+      })
+    );
+  }
+
+  deleteInventory(
+    uuid: string
+  ): Observable<{}> {
+    return this.httpClient.delete<{}>(
+      `${
+        environment.apiBaseUrl
+      }/users/${this.authenticationService.getUsername()}/inventory/${uuid}`,
+      {
+        observe: "response",
+      }
+    ).pipe(
+      map(() => ({})),
     );
   }
 }

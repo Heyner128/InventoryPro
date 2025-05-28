@@ -1,5 +1,6 @@
 @use 'sass:color';
-@use 'styles' as *;
+@use 'components' as *;
+@use 'variables' as *;
 
 .inventories__header {
     display: flex;
@@ -7,20 +8,13 @@
     align-items: center;
 }
 
-.inventories__header-actions button {
+.inventories__header a {
     @include button-secondary-outline;
 }
 
 .inventories__table {
     width: 100%;
-    border-collapse: collapse;
 }
-
-.inventories__table td, th {
-    padding-top: var(--size-medium);
-    padding-bottom: var(--size-medium);
-}
-
 
 .inventories__table-row {
     cursor: pointer;
@@ -33,6 +27,6 @@
     background-color: color.adjust($color-white, $lightness: -10%);
 }
 
-.inventories__table-row--message {
+.inventories__table-row--merged {
     text-align: center;
 }

@@ -1,7 +1,7 @@
 <div class="content">
     @if(!isServer) {
         <div class="login-form">
-            <h1>Login to InventoryPro</h1>
+            <h1>Login to Stashless</h1>
             
             <form [formGroup]="loginForm" (submit)="login()" ngNativeValidate>
                 <div class="login-form__input">
@@ -12,7 +12,7 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" [formControl]="loginForm.controls.password" required>
                 </div>
-                <span>Don't have an account? <a href="/signup">sign up</a></span>
+                <span>Don't have an account? <a class="login-form__signup" routerLink="/signup">sign up</a></span>
                 @if (statusMessage) {
                     <span class="login-form__status">{{statusMessage}}</span>
                 }

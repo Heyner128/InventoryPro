@@ -1,39 +1,51 @@
 import { TestBed } from '@angular/core/testing';
 
 import { AuthenticationService } from './authentication.service';
-import { HttpRequest, provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { environment } from '../../environments/environment';
-import { catchError, of } from 'rxjs';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { errorInterceptor } from '../interceptor/error.interceptor';
+import { ApiTesting } from '../../testing/api';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
-  let httpTesting: HttpTestingController;
+  let apiTesting: ApiTesting;
   let cookieSpy: jasmine.Spy;
-  const username = 'testing_user';
-  const password = 'password';
+  const MOCK_USERNAME = 'testing_user';
+  const MOCK_PASSWORD = 'password';
+  
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+        provideHttpClient(
+          withInterceptors([
+            errorInterceptor,
+          ]),
+          withFetch()
+        ),
+        provideHttpClientTesting(),
+      ],
     });
-    service = TestBed.inject(AuthenticationService);
-    httpTesting = TestBed.inject(HttpTestingController);
-    cookieSpy = spyOnProperty(document, 'cookie', 'get').and.returnValue(
-      `user_id=${username}`
-    );
+    injectDependencies();
+    initCookieSpy();
+    mockUserIdCookie();
   });
 
-  afterEach(() => {
-    httpTesting.verify();
-  });
+  function injectDependencies() {
+    service = TestBed.inject(AuthenticationService);
+    apiTesting = TestBed.inject(ApiTesting);
+  }
+
+  function initCookieSpy() {
+    cookieSpy = spyOnProperty(document, "cookie", "get");
+  }
+
+  function mockUserIdCookie(value: string = MOCK_USERNAME) {
+    cookieSpy.and.returnValue(`userId=${value};`);
+  }
 
   it('should be created', () => {
     expect(service).toBeTruthy();
-    
   });
 
   it('should return true if the response from the API is ok', () => {
@@ -41,52 +53,57 @@ describe('AuthenticationService', () => {
     service.isAuthenticated().subscribe((response) => {
       expect(response).toBeTrue();
     });
-
-    const req = httpTesting.expectOne(`${environment.apiBaseUrl}/users/${username}`);
-    req.flush({},{ status: 200, statusText: 'OK' });
+    apiTesting.expectSuccessfulApiResponse();
   });
 
   it('should return false if the response from the API is not ok', () => {
-    cookieSpy.and.returnValue("");
+    mockUserIdCookie("");
     service.isAuthenticated().subscribe((response) => {
       expect(response).toBeFalse();
     });
-
-    const req = httpTesting.expectOne((req: HttpRequest<any>) => {
-      return req.url.startsWith(`${environment.apiBaseUrl}/users/`)
-        && !req.url.endsWith(username);
+    apiTesting.expectUnsuccessfulApiResponse({
+      status: 401,
+      message: 'Unauthorized'
     });
-    req.flush({},{ status: 404, statusText: 'Not Found' });
   });
 
   it('login be ok if the credentials are correct', () => {
-    service.login(username, password).subscribe((response) => {
-      expect(response.status).toBe(200);
+    service.login(MOCK_USERNAME, MOCK_PASSWORD).subscribe((response) => {
+      expect(response).toBeDefined();
     });
-
-    const req = httpTesting.expectOne((req: HttpRequest<any>) => {
-      return req.url === `${environment.apiBaseUrl}/users/login`
-        && req.body.username === username
-        && req.body.password === password;
-    });
-    req.flush({},{ status: 200, statusText: 'OK' });
+    apiTesting.expectSuccessfulApiResponse();
   });
 
   it('login should fail if the credentials are incorrect', () => {
-    service.login('randomusername', 'randompassword')
-    .pipe(
-      catchError(error => of(error))
-    )
-    .subscribe((response) => {
-      expect(response.status).toBe(401);
-    });
 
-    const req = httpTesting.expectOne((req: HttpRequest<any>) => {
-      return req.url === `${environment.apiBaseUrl}/users/login`
-        && !(req.body.username === username
-        && req.body.password === password);
+    service.login('randomusername', 'randompassword')
+    .subscribe({
+      next: () => fail('should have failed with a 401 error'),
+      error: (error: Error) => {
+        expect(error).toBeDefined();
+      }
     });
-    req.flush({},{ status: 401, statusText: 'Unauthorized' });
+    apiTesting.expectUnsuccessfulApiResponse({
+      status: 401,
+      message: 'Unauthorized'
+    });
+  });
+
+  it('logout should be ok if the api response is ok', () => {
+    service.logout().subscribe((response) => {
+      expect(response).toBeDefined();
+    });
+    apiTesting.expectSuccessfulApiResponse();
+  });
+
+  it('logout should fail if the api response is not ok', () => {
+    service.logout().subscribe({
+      next: () => fail('should have failed with a 401 error'),
+      error: (error: Error) => {
+        expect(error).toBeDefined();
+      }
+    });
+    apiTesting.expectUnsuccessfulApiResponse();
   });
 
 });

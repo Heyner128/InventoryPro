@@ -1,5 +1,5 @@
-@use 'sass:color';
-@use 'styles' as *;
+@use 'components' as *;
+@use 'variables' as *;
 
 .content {
     display: flex;

@@ -1,5 +1,5 @@
-@use 'sass:color';
-@use 'styles' as *;
+@use 'components' as *;
+@use 'variables' as *;
 
 .content {
     display: flex;
@@ -42,6 +42,11 @@
 
 .login-form__input input {
     @include input;
+}
+
+.login-form__signup {
+    text-decoration: underline;
+    color: blue;
 }
 
 .login-form__status {

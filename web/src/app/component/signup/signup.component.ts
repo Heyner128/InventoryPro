@@ -43,29 +43,15 @@ export class SignupComponent {
     }
 
     this.authenticationService
-      .signup(
-        {
-          email: this.signupForm.value.email,
-          username: this.signupForm.value.username,
-          password: this.signupForm.value.password,
-          matchingPassword: this.signupForm.value.matchingPassword
-        }
-      )
-      .pipe(
-        catchError(
-          error => {
-            if (error instanceof HttpErrorResponse) {
-              const errorResponse = error.error as ApiError;
-              this.statusMessage = errorResponse.message;
-            } else {
-              this.statusMessage = 'An unknown error occurred';
-            }
-            return of();
-          }
-        )
-      )
-      .subscribe(() => 
-        this.router.navigate(['/login'])
-      );
+      .signup({
+        email: this.signupForm.value.email,
+        username: this.signupForm.value.username,
+        password: this.signupForm.value.password,
+        matchingPassword: this.signupForm.value.matchingPassword,
+      })
+      .subscribe({
+        next: () => {this.router.navigate(["/login"])},
+        error: (message) => this.statusMessage = message,
+      });
   }
 }

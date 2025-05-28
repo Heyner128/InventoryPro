@@ -1,5 +1,6 @@
 @use 'sass:color';
-@use 'styles' as *;
+@use 'variables' as *;
+
 
 :host ::ng-deep {
     .popover__content {
