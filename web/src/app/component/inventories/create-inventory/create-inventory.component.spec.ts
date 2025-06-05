@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CreateComponent } from './create.component';
+import { CreateInventoryComponent } from './create-inventory.component';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter, Router } from '@angular/router';
 import { User } from '../../../model/user';
@@ -10,6 +10,7 @@ import { InventoriesService } from '../../../service/inventories.service';
 import { AuthenticationService } from '../../../service/authentication.service';
 import { of, throwError } from 'rxjs';
 import { InputTesting } from '../../../../testing/input';
+import { ProductsService } from '../../../service/products.service';
 
 const MOCK_USER: User = {
   username: "test_user",
@@ -29,13 +30,15 @@ const MOCK_INVENTORY: Inventory = {
   updatedAt: MOCK_DATE,
 };
 
-describe('CreateComponent', () => {
-  let component: CreateComponent;
+describe('CreateInventoryComponent', () => {
+  let component: CreateInventoryComponent;
   let harness: RouterTestingHarness;
   let router: Router;
   let inventoriesService: InventoriesService;
+  let productsService: ProductsService;
   let authenticationService: AuthenticationService;
   let inventoriesSpy: jasmine.Spy;
+  let productsSpy: jasmine.Spy;
 
   let nameInput: HTMLInputElement | null;
   let descriptionInput: HTMLTextAreaElement | null;
@@ -43,13 +46,13 @@ describe('CreateComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateComponent],
+      imports: [CreateInventoryComponent],
       providers: [
         provideHttpClient(),
         provideRouter([
           {
             path: "**",
-            component: CreateComponent,
+            component: CreateInventoryComponent,
           },
         ]),
       ],
@@ -57,6 +60,7 @@ describe('CreateComponent', () => {
     injectDependencies();
     stubAuthentication();
     stubInventories();
+    stubProducts();
     
     await initializeRouter();
     searchForInputs();
@@ -67,6 +71,7 @@ describe('CreateComponent', () => {
     router = TestBed.inject(Router);
     inventoriesService = TestBed.inject(InventoriesService);
     authenticationService = TestBed.inject(AuthenticationService);
+    productsService = TestBed.inject(ProductsService);
   }
 
   function stubAuthentication() {
@@ -77,18 +82,22 @@ describe('CreateComponent', () => {
     inventoriesSpy = spyOn(inventoriesService, "createInventory").and.returnValue(of(MOCK_INVENTORY));
   }
 
+  function stubProducts() {
+    spyOn(productsService, "getProducts").and.returnValue(of([]));
+  }
+
   async function initializeRouter() {
     harness = await RouterTestingHarness.create();
-    component = await harness.navigateByUrl("/inventories", CreateComponent);
+    component = await harness.navigateByUrl("/inventories", CreateInventoryComponent);
   }
 
   function searchForInputs() {
-    nameInput = harness.routeNativeElement!.querySelector("input[name='name']");
+    nameInput = harness.routeNativeElement!.querySelector(".inventory-form__fields input[name='name']");
     descriptionInput = harness.routeNativeElement!.querySelector(
-      "textarea[name='description']"
+      ".inventory-form__fields textarea[name='description']"
     );
     submitButton = harness.routeNativeElement!.querySelector(
-      "button[type='submit']"
+      "button[type='submit'].inventory-form__submit "
     );
   }
 

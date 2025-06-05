@@ -7,9 +7,14 @@ import java.util.UUID;
 import me.heyner.stashless.dto.ProductInputDto;
 import me.heyner.stashless.dto.ProductOutputDto;
 import me.heyner.stashless.exception.EntityNotFoundException;
+import me.heyner.stashless.model.Option;
 import me.heyner.stashless.model.Product;
+import me.heyner.stashless.model.SKU;
 import me.heyner.stashless.model.User;
+import me.heyner.stashless.repository.OptionRepository;
 import me.heyner.stashless.repository.ProductRepository;
+import me.heyner.stashless.repository.SKURepository;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +27,10 @@ public class ProductService {
 
   private final ProductRepository productRepository;
 
+  private final OptionRepository optionRepository;
+
+  private final SKURepository skuRepository;
+
   private final UserService userService;
 
   @PersistenceContext private final EntityManager entityManager;
@@ -29,8 +38,15 @@ public class ProductService {
   private final ModelMapper modelMapper = new ModelMapper();
 
   public ProductService(
-      ProductRepository productRepository, EntityManager entityManager, UserService userService) {
+    ProductRepository productRepository,
+    OptionRepository optionRepository,
+    SKURepository skuRepository,
+    EntityManager entityManager,
+    UserService userService
+  ) {
     this.productRepository = productRepository;
+    this.optionRepository = optionRepository;
+    this.skuRepository = skuRepository;
     this.entityManager = entityManager;
     this.userService = userService;
   }
@@ -82,6 +98,17 @@ public class ProductService {
   }
 
   public void deleteProduct(UUID uuid) throws EntityNotFoundException {
+  
+    List<Option> options = optionRepository.findByProductId(uuid);
+    List<SKU> skus = skuRepository.findByProductId(uuid);
+    for(SKU sku : skus) {
+      skuRepository.delete(sku);
+      logger.info("SKU {} deleted", sku.getId());
+    }
+    for(Option option : options) {
+      optionRepository.delete(option);
+      logger.info("Option {} deleted", option.getId());
+    }
     productRepository.deleteById(uuid);
     logger.info("{} Product successfully deleted", uuid);
   }

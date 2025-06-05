@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 public class OptionOutputDto {
     private UUID id;
     private String name;
-    private List<?> values;
+    private List<String> values;
     private Date createdAt;
     private Date updatedAt;
 }

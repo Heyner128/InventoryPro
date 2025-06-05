@@ -1,9 +1,10 @@
-<form class="product-form" [formGroup]="productForm" (submit)="update()" ngNativeValidate>
+
+<form class="product-form" [formGroup]="productForm" (submit)="create()" ngNativeValidate>
     <div class="product-form__header">
         <a class="product-form__header-back" routerLink="/products">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
-        <h1>{{title}}</h1>
+        <h1>New product</h1>
     </div>  
     <div class="product-form__fields">
         <div class="product-form__input">
@@ -16,16 +17,16 @@
         </div>
         <div class="product-form__input">
             <label for="description">Description</label>
-            <textarea id="description" name="description" [formControl]="productForm.controls.description"></textarea>
+            <textarea id="description" name="description" [formControl]="productForm.controls.description" required></textarea>
         </div>
     </div>
-    <form  [formGroup]="optionsForm" (submit)="addOption()" ngNativeValidate>
+    <form  [formGroup]="optionsForm" (submit)="addToOptionsList()" ngNativeValidate>
         <div class="options-form__fields">
             <h2>Options</h2>
             <div class="options-form__input">
                 <label for="name">Name</label>
                 <div>
-                    <input type="text" id="brand" name="brand" [formControl]="optionsForm.controls.name">
+                    <input title="option name" type="text" id="name" name="name" [formControl]="optionsForm.controls.name" required>
                     <button class="options-form__add" type="submit">
                         <span class="material-symbols-outlined">add</span>
                     </button>
@@ -44,8 +45,5 @@
     @if (statusMessage) {
         <span class="product-form__status">{{statusMessage}}</span>
     }
-    <div class="product-form__actions">
-        <button class="product-form__delete" type="button" (click)="delete()">Delete</button>
-        <button class="product-form__submit" type="submit">Update</button>
-    </div>
+    <button class="product-form__submit" type="submit">Create</button>
 </form>

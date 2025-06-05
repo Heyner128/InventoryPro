@@ -1,6 +1,8 @@
 package me.heyner.stashless.model;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -31,15 +33,17 @@ public class Option {
   private String name;
 
   @ManyToOne
-  @JoinColumn(nullable = false)
+  @JoinColumn(name = "product_id", nullable = false)
   private Product product;
 
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  private List<OptionValue> values;
+  private List<OptionValue> values = new ArrayList<>();
 
   @CreationTimestamp private Date createdAt;
 
   @UpdateTimestamp private Date updateAt;
+
+
 
   @Override
   public final boolean equals(Object o) {

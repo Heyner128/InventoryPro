@@ -6,7 +6,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 describe('PopoverComponent', () => {
   let component: PopoverComponent;
   let fixture: ComponentFixture<PopoverComponent>;
-  let container: HTMLDivElement;
+  let container: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,7 +17,7 @@ describe('PopoverComponent', () => {
 
     fixture = TestBed.createComponent(PopoverComponent);
     component = fixture.componentInstance;
-    container = fixture.nativeElement.querySelector('.popover__content') as HTMLDivElement;
+    container = fixture.nativeElement;
     fixture.componentRef.setInput('isOpen', false);
     fixture.componentRef.setInput('anchorElement', document.createElement('div'));
     fixture.autoDetectChanges();

@@ -9,12 +9,10 @@ import me.heyner.stashless.dto.InventoryInputDto;
 import me.heyner.stashless.dto.InventoryItemInputDto;
 import me.heyner.stashless.dto.InventoryItemOutputDto;
 import me.heyner.stashless.dto.InventoryOutputDto;
-import me.heyner.stashless.model.Inventory;
 import me.heyner.stashless.service.InventoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @SecurityRequirement(name = "JWT token")

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { EditComponent } from './edit.component';
+import { EditInventoryComponent } from './edit-inventory.component';
 import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -31,8 +31,8 @@ const MOCK_INVENTORY: Inventory = {
   updatedAt: MOCK_DATE,
 };
 
-describe('EditComponent', () => {
-  let component: EditComponent;
+describe('EditInventoryComponent', () => {
+  let component: EditInventoryComponent;
   let harness: RouterTestingHarness;
   let router: Router;
   let inventoriesService: InventoriesService;
@@ -48,9 +48,9 @@ describe('EditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditComponent],
+      imports: [EditInventoryComponent],
       providers: [provideRouter([
-        { path: "inventories/:id", component: EditComponent },
+        { path: "inventories/:id", component: EditInventoryComponent },
         { path: "inventories", component: InventoriesComponent },
         { path: "error", component: ErrorComponent },
       ]), provideHttpClient()]
@@ -83,7 +83,7 @@ describe('EditComponent', () => {
   
   async function initializeRouter() {
     harness = await RouterTestingHarness.create();
-    component = await harness.navigateByUrl(`/inventories/${MOCK_INVENTORY.id}`, EditComponent);
+    component = await harness.navigateByUrl(`/inventories/${MOCK_INVENTORY.id}`, EditInventoryComponent);
   }
 
   function searchForInputs() {

@@ -1,8 +1,8 @@
 package me.heyner.stashless.model;
 
 import jakarta.persistence.*;
+
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.*;
@@ -21,6 +21,7 @@ import org.hibernate.proxy.HibernateProxy;
 public class Product {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "product_id")
   private UUID id;
 
   @Column(nullable = false)
@@ -32,12 +33,6 @@ public class Product {
   @Column(nullable = false)
   private String brand;
 
-  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-  private List<Option> options;
-
-  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-  private List<SKU> skus;
-
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(nullable = false)
   private User user;
@@ -45,18 +40,6 @@ public class Product {
   @CreationTimestamp private Date createdAt;
 
   @UpdateTimestamp private Date updatedAt;
-
-  public Product setOptions(List<Option> options) {
-    this.getOptions().forEach(opt -> opt.setProduct(this));
-    this.options = options;
-    return this;
-  }
-
-  public Product setSkus(List<SKU> skus) {
-    this.getSkus().forEach(sku -> sku.setProduct(this));
-    this.skus = skus;
-    return this;
-  }
 
   @Override
   public final boolean equals(Object o) {

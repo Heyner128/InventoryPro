@@ -76,7 +76,7 @@ class UsersIntegrationTests {
 
   @Test
   @DisplayName("POST to /login with email and password logs in the user")
-  public void testLoginUser() {
+  void testLoginUser() {
     // Registers a new user
     registerRequest();
 
@@ -89,7 +89,7 @@ class UsersIntegrationTests {
   }
 
   @Test
-  public void testGetUserDetails() {
+  void testGetUserDetails() {
 
     // Registers a new user
     registerRequest();
@@ -112,7 +112,7 @@ class UsersIntegrationTests {
   }
 
   @Test
-  public void testUpdateUserDetails() {
+  void testUpdateUserDetails() {
 
     // Registers a new user
     registerRequest();

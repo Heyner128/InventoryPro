@@ -3,6 +3,7 @@ package me.heyner.stashless.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.*;
@@ -17,7 +18,7 @@ import org.hibernate.proxy.HibernateProxy;
 @ToString
 @Accessors(chain = true)
 @NoArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "option_value_id"}))
+@Table(name = "sku",uniqueConstraints = @UniqueConstraint(columnNames = {"option_id", "option_value_id"}))
 public class SKU {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,11 +26,6 @@ public class SKU {
 
   @Column(nullable = false)
   private String name;
-
-  @ManyToOne
-  @JoinColumn(nullable = false)
-  @ToString.Exclude
-  private Product product;
 
   @Column(nullable = false)
   private BigDecimal costPrice;
@@ -41,14 +37,18 @@ public class SKU {
   private int marginPercentage;
 
   @ManyToOne
-  @JoinColumn(nullable = false)
+  @JoinColumn(name = "product_id", nullable = false)
   @ToString.Exclude
-  private Option option;
+  private Product product;
 
-  @ManyToOne
-  @JoinColumn(nullable = false)
-  @ToString.Exclude
-  private OptionValue optionValue;
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+      name = "sku_options",
+      joinColumns = @JoinColumn(name = "sku_id", referencedColumnName = "id"),
+      inverseJoinColumns = @JoinColumn(name = "option_value_id", referencedColumnName = "id")
+  )
+  @MapKeyJoinColumn(name = "option_id", referencedColumnName = "id")
+  private Map<Option, OptionValue> options;
 
   @CreationTimestamp private Date createdAt;
 

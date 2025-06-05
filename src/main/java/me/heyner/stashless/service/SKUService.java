@@ -1,6 +1,10 @@
 package me.heyner.stashless.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import me.heyner.stashless.dto.SKUInputDto;
@@ -31,53 +35,101 @@ public class SKUService {
     this.skuRepository = skuRepository;
     this.optionRepository = optionRepository;
     this.productRepository = productRepository;
+    modelMapper
+      .typeMap(SKU.class, SKUOutputDto.class)
+      .addMappings(
+        mapper ->
+          mapper
+            .using(
+              ctx ->
+                ((Map<Option, OptionValue>) ctx.getSource())
+                  .entrySet()
+                  .stream()
+                  .collect(
+                    Collectors.toMap(
+                      e -> e.getKey().getName(),
+                      e -> e.getValue().getValue()
+                    )
+                  )
+            )
+            .map(SKU::getOptions, SKUOutputDto::setOptions));
   }
 
-  public SKUOutputDto addSKU(UUID productUuid, SKUInputDto skuDto) throws EntityNotFoundException {
+  private SKU joinProduct(SKU sku, UUID productUuid) {
     Product product =
         productRepository
-            .findById(productUuid)
-            .orElseThrow(() -> new EntityNotFoundException("Not found"));
+          .findById(productUuid)
+          .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
-    Option option =
-        optionRepository
-            .findById(skuDto.getOptionUUID())
-            .orElseThrow(() -> new EntityNotFoundException("Not found"));
-
-    OptionValue optionValue =
-        option.getValues().stream()
-            .filter(ov -> ov.getValue().equals(skuDto.getOptionValue()))
-            .findFirst()
-            .orElseThrow(() -> new EntityNotFoundException("Not found"));
-
-    SKU sku = modelMapper.map(skuDto, SKU.class);
-    sku.setProduct(product);
-    sku.setOption(option);
-    sku.setOptionValue(optionValue);
-    SKU savedSku = skuRepository.save(sku);
-    logger.info("SKU created: " + sku);
-    return modelMapper.map(savedSku, SKUOutputDto.class);
+    return sku.setProduct(product);
   }
 
+  private SKU joinOptions(SKU sku, UUID productId, Map<String, String> optionValueNames) {
+    Map<Option, OptionValue> options = new HashMap<>();
+
+    for (Entry<String, String> entry : optionValueNames.entrySet()) {
+      Option option =
+          optionRepository
+            .findByNameAndProductId(productId, entry.getKey())
+            .orElseThrow(() -> new EntityNotFoundException("Option not found"));
+
+      OptionValue optionValue =
+          option.getValues().stream()
+            .filter(ov -> ov.getValue().equals(entry.getValue()))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException("Option value not found"));
+
+      options.put(option, optionValue);
+    }
+    return sku.setOptions(options);
+  }
+
+
+  public SKUOutputDto addSKU(UUID productUuid, SKUInputDto skuDto) throws EntityNotFoundException {
+
+    SKU sku = modelMapper.map(skuDto, SKU.class);
+    sku = joinProduct(sku, productUuid);
+    sku = joinOptions(sku, productUuid, skuDto.getOptions());
+
+    logger.info("Creating SKU: {}", sku);
+
+    sku = skuRepository.save(sku);
+
+    logger.info("SKU created: {}", sku);
+    
+    return modelMapper.map(sku, SKUOutputDto.class);
+  }
+
+
   public List<SKUOutputDto> getSkus(UUID productUuid) throws EntityNotFoundException {
-    List<SKU> skus = skuRepository.findByProduct_Id(productUuid);
+    List<SKU> skus = skuRepository.findByProductId(productUuid);
     logger.info("SKUs {} found", skus.size());
     return skus.stream().map(sku -> modelMapper.map(sku, SKUOutputDto.class)).toList();
   }
 
-  public List<SKUOutputDto> updateSkus(UUID productUUID, List<SKUInputDto> skuDtos)
+
+  public List<SKUOutputDto> updateSkus(UUID productUuid, List<SKUInputDto> skuDtos)
       throws EntityNotFoundException {
-    Product product =
-        productRepository
-            .findById(productUUID)
-            .orElseThrow(() -> new EntityNotFoundException("Not found"))
-            .setSkus(
-                skuDtos.stream()
-                    .map(skuDto -> new SKU().setName(skuDto.getName()))
-                    .collect(Collectors.toList()));
+    List<SKU> skus = skuRepository.findByProductId(productUuid);
 
-    productRepository.save(product);
+    for(SKU sku: skus) {
+      skuRepository.delete(sku);
+    }
 
-    return product.getSkus().stream().map(sku -> modelMapper.map(sku, SKUOutputDto.class)).toList();
+    List<SKU> savedSkus = new ArrayList<>();
+
+    for(SKUInputDto skuDto: skuDtos) {
+
+      SKU newSku = modelMapper.map(skuDto, SKU.class);
+      newSku = joinProduct(newSku, productUuid);
+      newSku = joinOptions(newSku, productUuid, skuDto.getOptions());
+      skuRepository.save(newSku);
+      logger.info("SKU updated: {}", newSku);
+      savedSkus.add(newSku);
+    }
+
+    return savedSkus.stream()
+        .map(sku -> modelMapper.map(sku, SKUOutputDto.class))
+        .toList();
   }
 }

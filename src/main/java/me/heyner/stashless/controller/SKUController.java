@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 import me.heyner.stashless.dto.SKUInputDto;
 import me.heyner.stashless.dto.SKUOutputDto;
-import me.heyner.stashless.model.SKU;
 import me.heyner.stashless.service.SKUService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +24,7 @@ public class SKUController {
   }
 
   @GetMapping
-  public List<SKUOutputDto> getProductSKUs(@PathVariable UUID productUuid) {
+  public List<SKUOutputDto> getSKUs(@PathVariable UUID productUuid) {
     return skuService.getSkus(productUuid);
   }
 
@@ -36,8 +35,7 @@ public class SKUController {
   }
 
   @PutMapping
-  public List<SKUOutputDto> updateSKUs(
-      @PathVariable UUID productUuid, @RequestBody List<SKUInputDto> skuDtos) {
+  public List<SKUOutputDto> updateSKUs(@PathVariable UUID productUuid, @RequestBody List<SKUInputDto> skuDtos) {
     return skuService.updateSkus(productUuid, skuDtos);
   }
 }

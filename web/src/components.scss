@@ -61,7 +61,7 @@
     border-color: rgba($color-black, 0.5);
     font-size: var(--size-small);
 
-    &:focus {
+    &:focus, &:focus-visible {
         outline-width: 2px;
         outline-style: solid;
         outline-color: rgba($color-secondary, 0.5);
@@ -81,22 +81,23 @@
     border-width: 1px;
     padding: calc(0.5 * var(--size-xxsmall));
     border-radius: var(--size-xxsmall);
+    background-color: var(--color-white);
     border-color: var(--color-black);
     overflow: hidden;
 
-    &:focus-within  {
+    &:focus, &:focus-within, &:focus-visible  {
         outline-width: 2px;
         outline-style: solid;
         outline-color: rgba($color-secondary, 0.5);
         outline-offset: 2px;
     }
 
-    & input {
+    :is(input, textarea, select) {
         border: none;
         background-color: transparent;
         width: 100%;
         font-size: var(--size-small);
-        &:focus {
+        &:focus, &:focus-visible {
             outline: none;
         }
     }
@@ -108,12 +109,12 @@
     gap: var(--size-xxsmall);
     margin: var(--size-large) 0;
     
-    & label {
+    label {
         font-size: var(--size-small);
         font-weight: bold;
     }
 
-    & input, textarea {
+    :is(input, textarea, select) {
         @include input;
     }
 }

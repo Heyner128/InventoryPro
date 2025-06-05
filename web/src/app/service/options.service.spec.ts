@@ -104,7 +104,7 @@ describe('OptionsService', () => {
   });
 
   it('should create a new option for a product', () => {
-    const newOption = { name: 'Material' };
+    const newOption = { name: 'Material', values: ['Cotton', 'Polyester'] };
     service.createOption(MOCK_PRODUCT_UUID, newOption).subscribe((option) => {
       expect(option.name).toEqual(newOption.name);
       expect(option.id).toBeDefined();
@@ -115,7 +115,7 @@ describe('OptionsService', () => {
   });
 
   it('should return an error if the API response for creating an option is not ok', () => {
-    const newOption = { name: 'Material' };
+    const newOption = { name: 'Material', values: ['Cotton', 'Polyester'] };
     service.createOption(MOCK_PRODUCT_UUID, newOption).subscribe({
       next: () => fail('Expected an error, but got an option'),
       error: (error) => {
@@ -127,20 +127,21 @@ describe('OptionsService', () => {
   });
 
   it('should update an existing option for a product', () => {
-    const updatedOption = { name: 'Updated Color' };
-    service.updateOption(MOCK_PRODUCT_UUID, MOCK_OPTIONS[0].id!, updatedOption).subscribe((option) => {
-      expect(option.name).toEqual(updatedOption.name);
-      expect(option.id).toEqual(MOCK_OPTIONS[0].id);
+    const updatedOption = { name: 'Updated Color', values: ['Red', 'Blue', 'Green', 'Yellow'] };
+    service.updateOptions(MOCK_PRODUCT_UUID, [updatedOption]).subscribe((options) => {
+      expect(options.length).toBe(1);
+      expect(options[0].name).toEqual(updatedOption.name);
+      expect(options[0].values).toEqual(updatedOption.values);
     });
     apiTesting.expectSuccessfulApiResponse({
-      body: { ...MOCK_OPTIONS[0], ...updatedOption, updatedAt: MOCK_DATE },
+      body: [updatedOption],
     });
   });
 
   it('should return an error if the API response for updating an option is not ok', () => {
-    const updatedOption = { name: 'Updated Color' };
-    service.updateOption(MOCK_PRODUCT_UUID, MOCK_OPTIONS[0].id!, updatedOption).subscribe({
-      next: () => fail('Expected an error, but got an option'),
+    const updatedOption = { name: 'Updated Color', values: ['Red', 'Blue', 'Green', 'Yellow'] };
+    service.updateOptions(MOCK_PRODUCT_UUID, [updatedOption]).subscribe({
+      next: () => fail('Expected an error, but got updated options'),
       error: (error) => {
         expect(error).toBeTruthy();
       }
@@ -151,7 +152,7 @@ describe('OptionsService', () => {
 
   it('should delete an option for a product', () => {
     service.deleteOption(MOCK_PRODUCT_UUID, MOCK_OPTIONS[0].id!).subscribe(() => {
-      expect(true).toBeTrue(); // Just checking if the delete call was successful
+      expect(true).toBeTrue();
     }
     );
     apiTesting.expectSuccessfulApiResponse({

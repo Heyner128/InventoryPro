@@ -2,8 +2,11 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthenticationService } from './authentication.service';
 import { environment } from '../../environments/environment';
-import { map, Observable } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import type { Inventory } from '../model/inventory';
+import { Item, NewItem } from '../model/item';
+import { SKU } from '../model/sku';
+import { SkuService } from './sku.service';
 
 @Injectable({
   providedIn: "root",
@@ -11,6 +14,7 @@ import type { Inventory } from '../model/inventory';
 export class InventoriesService {
   constructor(
     private readonly httpClient: HttpClient,
+    private readonly skuService: SkuService,
     private readonly authenticationService: AuthenticationService
   ) {}
 
@@ -98,5 +102,72 @@ export class InventoriesService {
     ).pipe(
       map(() => ({})),
     );
+  }
+
+  getInventoryItems(inventoryUuid: string): Observable<Item[]> {
+    return this.httpClient.get<Item[]>(
+      `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/inventory/${inventoryUuid}/item`,
+      {
+        observe: "response",
+      }
+    ).pipe(
+      map((response: HttpResponse<Item[]>) => {
+        return response.body || {} as Item[];
+      })
+    );
+  }
+
+  createInventoryItem(
+    inventoryUuid: string,
+    productUuid: string,
+    newInventoryItem: NewItem
+  ) {
+    return this.skuService.createSku(
+      productUuid,
+      {
+        name: newInventoryItem.name,
+        costPrice: newInventoryItem.costPrice,
+        amountAvailable: newInventoryItem.amountAvailable,
+        marginPercentage: newInventoryItem.marginPercentage,
+        options: newInventoryItem.options,
+      }
+    ).pipe(
+      switchMap((sku: SKU) => (
+        this.httpClient.post<Item>(
+          `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/inventory/${inventoryUuid}/item`,
+          {
+            skuId: sku.id,
+            quantity: newInventoryItem.quantity,
+          },
+          {
+            observe: "response",
+          }
+        ).pipe(
+          map((response: HttpResponse<Item>) => {
+            return response.body || {} as Item;
+          })
+        )
+      ))
+    );
+  }
+
+  deleteInventoryItem(
+    inventoryUuid: string,
+    productUuid: string,
+    skuUuid: string
+  ): Observable<{}> {
+    return this.skuService.deleteSku(productUuid, skuUuid)
+      .pipe(
+        switchMap(() => (
+          this.httpClient.delete<{}>(
+            `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/inventory/${inventoryUuid}/item/${skuUuid}`,
+            {
+              observe: "response",
+            }
+          ).pipe(
+            map(() => ({}))
+          ))
+        )
+      );
   }
 }

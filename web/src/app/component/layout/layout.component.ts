@@ -1,6 +1,5 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { SearchComponent } from "./search/search.component";
 import { UserBadgeComponent } from "./user-badge/user-badge.component";
 
 @Component({
@@ -9,7 +8,6 @@ import { UserBadgeComponent } from "./user-badge/user-badge.component";
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    SearchComponent,
     UserBadgeComponent,
   ],
   templateUrl: "./layout.component.html",

@@ -11,5 +11,5 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode
 public class OptionInputDto {
   private String name;
-  private List<?> values;
+  private List<String> values;
 }

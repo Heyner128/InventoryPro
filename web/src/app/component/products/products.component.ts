@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { createAngularTable, createColumnHelper, FlexRenderDirective, getCoreRowModel, Table } from '@tanstack/angular-table';
 import { Product } from '../../model/product';
@@ -46,7 +46,8 @@ export class ProductsComponent implements OnInit {
   constructor(
     private readonly productsService: ProductsService,
     private readonly router: Router,
-    private readonly sanitizer: DomSanitizer
+    private readonly sanitizer: DomSanitizer,
+    private readonly changeDetectorRef: ChangeDetectorRef
   ) {
     console.debug(`Loaded web component ${RelativeTimeElement.name}`);
   }
@@ -60,6 +61,7 @@ export class ProductsComponent implements OnInit {
           columns: this.columns,
           getCoreRowModel: getCoreRowModel(),
         }));
+        this.changeDetectorRef.detectChanges();
       },
       error: () => {
         this.router.navigateByUrl("/error", {

@@ -3,30 +3,28 @@
 
 
 :host ::ng-deep {
-    .popover__content {
-        position: absolute;
-        width: max-content;
-        background-color: var(--color-white);
-        padding-top: var(--size-small);
-        padding-bottom: var(--size-small);
-        border-radius: calc(0.5 * var(--size-xxsmall));
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        top: 0;
-        left: 0;
+    position: absolute;
+    width: max-content;
+    background-color: var(--color-white);
+    border-radius: calc(0.5 * var(--size-xxsmall));
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    top: -100%;
+    left: -100%;
+    z-index: 1000;
 
-        button {
-            display: flex;
-            align-items: center;
-            gap: var(--size-xxsmall);
-            border: none;
-            background-color: transparent;
+    button {
+        display: flex;
+        align-items: center;
+        gap: var(--size-xxsmall);
+        border: none;
+        background-color: transparent;
 
-            &:hover {
-                cursor: pointer;
-                background-color: color.adjust($color-background, $lightness: -10%)
-            }
+        &:hover {
+            cursor: pointer;
+            background-color: color.adjust($color-background, $lightness: -10%)
         }
     }
+    
 
     .popover__arrow {
         position: absolute;

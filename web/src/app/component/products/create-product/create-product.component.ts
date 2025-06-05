@@ -4,14 +4,16 @@ import { ProductsService } from '../../../service/products.service';
 import { Option } from '../../../model/option';
 import { Router, RouterLink } from '@angular/router';
 import { OptionComponent } from '../option/option.component';
+import { OptionsService } from '../../../service/options.service';
+import { defaultIfEmpty, merge, switchMap } from 'rxjs';
 
 @Component({
   selector: "app-create",
   imports: [ReactiveFormsModule, RouterLink, OptionComponent],
-  templateUrl: "./create.component.html",
-  styleUrl: "./create.component.scss",
+  templateUrl: "./create-product.component.html",
+  styleUrl: "./create-product.component.scss",
 })
-export class CreateComponent {
+export class CreateProductComponent {
   productForm = new FormGroup({
     name: new FormControl(""),
     description: new FormControl(""),
@@ -25,6 +27,7 @@ export class CreateComponent {
 
   constructor(
     private readonly productsService: ProductsService,
+    private readonly optionsService: OptionsService,
     private readonly router: Router
   ) {}
 
@@ -36,6 +39,17 @@ export class CreateComponent {
         description: this.productForm.value.description ?? "",
         brand: this.productForm.value.brand ?? "",
       })
+      .pipe(
+        switchMap(product => 
+          merge(
+            ...this.options().map(option => 
+              this.optionsService.createOption(product.id, option)
+            )
+          ).pipe(
+            defaultIfEmpty(product)
+          )
+        )
+      )
       .subscribe({
         next: () => {
           this.router.navigateByUrl("/products");
@@ -44,7 +58,7 @@ export class CreateComponent {
       });
   }
 
-  addOption() {
+  addToOptionsList() {
     if (
       !this.optionsForm.value.name ||
       this.options()

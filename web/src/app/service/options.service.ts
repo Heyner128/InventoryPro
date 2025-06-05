@@ -44,6 +44,7 @@ export class OptionsService {
 
   createOption(productUuid: string, option: {
     name: string,
+    values: string[],
   }): Observable<Option> {
     return this.httpClient.post<Option>(
       `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/products/${productUuid}/options`,
@@ -58,18 +59,19 @@ export class OptionsService {
     );
   }
 
-  updateOption(productUuid: string, optionUuid: string, option: {
+  updateOptions(productUuid: string, options: {
     name: string,
-  }): Observable<Option> {
-    return this.httpClient.put<Option>(
-      `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/products/${productUuid}/options/${optionUuid}`,
-      option,
+    values: string[],
+  }[]): Observable<Option[]> {
+    return this.httpClient.put<Option[]>(
+      `${environment.apiBaseUrl}/users/${this.authenticationService.getUsername()}/products/${productUuid}/options`,
+      options,
       {
         observe: 'response',
       }
     ).pipe(
-      map((response: HttpResponse<Option>) => {
-        return response.body || {} as Option;
+      map((response: HttpResponse<Option[]>) => {
+        return response.body || {} as Option[];
       })
     );
   }

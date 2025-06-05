@@ -21,6 +21,10 @@
     }
 }
 
+.user-badge__popover {
+    padding: var(--size-small) 0; 
+}
+
 .user-badge__popover-item {
     min-width: calc(10 * var(--size-xxlarge));
     padding: var(--size-small);

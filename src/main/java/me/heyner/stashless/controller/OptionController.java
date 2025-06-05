@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 import me.heyner.stashless.dto.OptionInputDto;
 import me.heyner.stashless.dto.OptionOutputDto;
-import me.heyner.stashless.model.Option;
 import me.heyner.stashless.service.OptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

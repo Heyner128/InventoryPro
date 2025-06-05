@@ -1,11 +1,16 @@
 
 import { NgStyle } from '@angular/common';
-import { Component, effect, ElementRef, HostListener, Injector, input,  InputSignal, model, ModelSignal, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, HostListener, Injector, input,  InputSignal, model, ModelSignal, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { autoUpdate, computePosition, offset, shift, arrow } from '@floating-ui/dom';
 
 @Component({
   selector: 'app-popover',
   imports: [NgStyle],
+  host: {
+    '[style]': 'positionStyles',
+    '[hidden]': '!isOpen()',
+    'tabindex': '-1',
+  },
   templateUrl: './popover.component.html',
   styleUrl: './popover.component.scss'
 })
@@ -16,17 +21,18 @@ export class PopoverComponent implements OnInit {
   offset: InputSignal<number> = input<number>(10);
   shift: InputSignal<number> = input<number>(10);
   anchorElement: InputSignal<HTMLElement>  = input.required<HTMLElement>();
-
   x: WritableSignal<number> = signal(0);
   y: WritableSignal<number> = signal(0);
-
-  @ViewChild('popover')
-  popover!: ElementRef<HTMLDivElement>;
+  hasArrow: InputSignal<boolean> = input<boolean>(false);
 
   @ViewChild('arrow')
   arrow!: ElementRef<HTMLDivElement>;
 
-  constructor(private readonly injector: Injector, private readonly elementRef: ElementRef) {}
+  constructor(
+    private readonly injector: Injector,
+    private readonly elementRef: ElementRef,
+    private readonly changeDetectorRef: ChangeDetectorRef
+  ) {}
   
   ngOnInit(): void {
     this.initAutoUpdate();
@@ -38,7 +44,7 @@ export class PopoverComponent implements OnInit {
       if (this.isOpen()) {
         cleanAutoUpdate = autoUpdate(
           this.anchorElement(),
-          this.popover.nativeElement,
+          this.elementRef.nativeElement,
           this.updatePosition.bind(this)
         );
       }
@@ -59,9 +65,10 @@ export class PopoverComponent implements OnInit {
   }
   
   updatePosition() {
+    this.changeDetectorRef.markForCheck();
     computePosition(
       this.anchorElement(),
-      this.popover.nativeElement,
+      this.elementRef.nativeElement,
       {
         placement: 'bottom',
         middleware: [
@@ -94,12 +101,13 @@ export class PopoverComponent implements OnInit {
  
 
         this.arrowPositionStyles = {
+          display: this.hasArrow() ? 'block' : 'none',
           left: arrowX != null ? `${arrowX}px` : '',
           top: arrowY != null ? `${arrowY}px` : '',
           right: '',
           bottom: '',
           [staticSide ?? '']: '-4px',
-        }; 
+        };
       }
     );
   }

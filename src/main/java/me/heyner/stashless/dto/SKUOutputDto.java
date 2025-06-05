@@ -2,6 +2,7 @@ package me.heyner.stashless.dto;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 import lombok.EqualsAndHashCode;
@@ -21,8 +22,7 @@ public class SKUOutputDto {
     private BigDecimal costPrice;
     private Long amountAvailable;
     private int marginPercentage;
-    private OptionOutputDto option;
-    private Class<?> optionValue;
+    private Map<String, String> options;
     private Date createdAt;
     private Date updatedAt;
 }

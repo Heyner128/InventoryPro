@@ -1,17 +1,19 @@
-import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../service/products.service';
 import { Option } from '../../../model/option';
 import { OptionComponent } from '../option/option.component';
+import { OptionsService } from '../../../service/options.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-edit',
   imports: [ReactiveFormsModule, RouterLink, OptionComponent],
-  templateUrl: './edit.component.html',
-  styleUrl: './edit.component.scss'
+  templateUrl: './edit-product.component.html',
+  styleUrl: './edit-product.component.scss'
 })
-export class EditComponent implements OnInit {
+export class EditProductComponent implements OnInit {
   productId: string | undefined;
   productForm = new FormGroup({
     name: new FormControl(''),
@@ -28,7 +30,9 @@ export class EditComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly productsService: ProductsService
+    private readonly productsService: ProductsService,
+    private readonly optionsService: OptionsService,
+    private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +50,19 @@ export class EditComponent implements OnInit {
               description: product.description,
               brand: product.brand,
             });
+            this.optionsService
+              .getOptions(product.id)
+              .subscribe({
+                next: (options) => {
+                  this.options.set(options);
+                },
+                error: () => {
+                  this.router.navigate(["/error"], {
+                    skipLocationChange: true,
+                  });
+                },
+              });
+            this.changeDetectorRef.detectChanges();
           },
           error: () => {
             this.router.navigate(['/error'], {
@@ -56,7 +73,7 @@ export class EditComponent implements OnInit {
     });
   }
   
-  addOption() {
+  addToOptionsList() {
     if(
       !this.optionsForm.value.name ||
       this.options().map(opt => opt.name).includes(this.optionsForm.value.name)
@@ -81,9 +98,16 @@ export class EditComponent implements OnInit {
         description: this.productForm.value.description,
         brand: this.productForm.value.brand,
       })
+      .pipe(
+        switchMap(product => this.optionsService.updateOptions(
+            product.id,
+            this.options()
+          )
+        )
+      )
       .subscribe({
         next: () => {
-          this.router.navigate(["/products"]);
+          this.router.navigateByUrl('/products');
         },
         error: (error) => this.statusMessage = error.message,
       });

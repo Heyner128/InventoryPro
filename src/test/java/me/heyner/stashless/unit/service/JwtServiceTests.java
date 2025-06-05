@@ -1,7 +1,6 @@
 package me.heyner.stashless.unit.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import java.time.Clock;
@@ -40,7 +39,7 @@ class JwtServiceTests {
   }
 
   @BeforeEach
-  public void setUpMockUser() {
+  void setUpMockUser() {
     user = new User();
     user.setId(1L);
     user.setUsername("test");
@@ -49,7 +48,7 @@ class JwtServiceTests {
   }
 
   @Test
-  public void testBuildToken() {
+  void testBuildToken() {
     String generatedJwt =
         jwtService.buildToken(
             new HashMap<>(),
@@ -60,33 +59,33 @@ class JwtServiceTests {
   }
 
   @Test
-  public void testGenerateToken() {
+  void testGenerateToken() {
     String generatedToken1 = jwtService.generateToken(user);
     String generatedToken2 = jwtService.generateToken(new HashMap<>(), user);
     assertEquals(generatedToken1, generatedToken2);
   }
 
   @Test
-  public void testExtractUsername() {
+  void testExtractUsername() {
     String username = jwtService.extractUsername(mockJwt);
     assertEquals(user.getUsername(), username);
   }
 
   @Test
-  public void testIsTokenValid() {
+  void testIsTokenValid() {
     assertTrue(jwtService.isTokenValid(mockJwt, user));
     assertFalse(jwtService.isTokenValid(mockInvalidUsernameJwt, user));
     assertThrows(ExpiredJwtException.class, () -> jwtService.isTokenValid(mockExpiredJwt, user));
   }
 
   @Test
-  public void testIsTokenExpired() {
+  void testIsTokenExpired() {
     assertFalse(jwtService.isTokenExpired(mockJwt));
     assertThrows(ExpiredJwtException.class, () -> jwtService.isTokenExpired(mockExpiredJwt));
   }
 
   @Test
-  public void testExtractExpiration() {
+  void testExtractExpiration() {
     Date expirationDate = jwtService.extractExpiration(mockJwt);
     assertTrue(Math.abs(currentMillis + jwtExpiration - expirationDate.getTime()) <= 1000);
   }

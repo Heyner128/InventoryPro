@@ -1,13 +1,13 @@
 package me.heyner.stashless.service;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 import me.heyner.stashless.dto.OptionInputDto;
 import me.heyner.stashless.dto.OptionOutputDto;
 import me.heyner.stashless.exception.EntityNotFoundException;
 import me.heyner.stashless.model.Option;
 import me.heyner.stashless.model.OptionValue;
-import me.heyner.stashless.model.Product;
 import me.heyner.stashless.repository.OptionRepository;
 import me.heyner.stashless.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
@@ -29,46 +29,78 @@ public class OptionService {
   public OptionService(ProductRepository productRepository, OptionRepository optionRepository) {
     this.productRepository = productRepository;
     this.optionRepository = optionRepository;
+    modelMapper
+      .typeMap(Option.class, OptionOutputDto.class)
+      .addMappings(
+        mapper -> mapper
+          .using(
+            ctx -> ((List<OptionValue>) ctx.getSource())
+              .stream()
+              .map(OptionValue::getValue)
+              .toList()
+          )
+          .map(Option::getValues,OptionOutputDto::setValues)
+      );
+
+    modelMapper
+      .typeMap(OptionInputDto.class, Option.class)
+      .addMappings( mapper -> mapper
+        .using(
+          ctx -> ((List<String>) ctx.getSource())
+            .stream()
+            .map(value -> new OptionValue().setValue(value))
+            .toList()
+        )
+        .map(OptionInputDto::getValues,Option::setValues));
   }
 
   public OptionOutputDto addOption(UUID productUuid, OptionInputDto optionDto)
       throws EntityNotFoundException {
-    Product product =
-        productRepository
-            .findById(productUuid)
-            .orElseThrow(() -> new EntityNotFoundException("Not found"));
-    Option option =
-        new Option()
-            .setName(optionDto.getName())
-            .setProduct(product)
-            .setValues(
-              optionDto.getValues()
-                .stream()
-                .map(ovs -> new OptionValue().setValue(ovs.toString()))
-                .toList()
-            );
+        
 
-    Option savedOption = optionRepository.save(option);
-    logger.info("Saved option: {}", savedOption);
-    return modelMapper.map(savedOption, OptionOutputDto.class);
-  }
 
-  public List<OptionOutputDto> getOptions(UUID productUuid) throws EntityNotFoundException {
-    List<Option> options = optionRepository.findByProduct_Id(productUuid);
-    logger.info("Getting {} options for product {}", options.size(), productUuid);
-    return options.stream().map(opt -> modelMapper.map(opt, OptionOutputDto.class)).toList();
-  }
-
-  public List<OptionOutputDto> updateOptions(UUID productUuid, List<OptionInputDto> optionsDto)
-      throws EntityNotFoundException {
-
-    Product product =
+    Option option = modelMapper
+      .map(optionDto, Option.class)
+      .setProduct(
         productRepository
             .findById(productUuid)
             .orElseThrow(() -> new EntityNotFoundException("Not found"))
-            .setOptions(
-                optionsDto.stream().map(optDto -> modelMapper.map(optDto, Option.class)).toList());
-    productRepository.save(product);
-    return product.getOptions().stream().map(opt -> modelMapper.map(opt, OptionOutputDto.class)).toList();
+      );
+
+    option = optionRepository.save(option);
+
+    logger.info("Adding option {} to product {}", option.getName(), productUuid);
+
+    return modelMapper.map(option, OptionOutputDto.class);
+  }
+
+  public List<OptionOutputDto> getOptions(UUID productUuid) throws EntityNotFoundException {
+    List<Option> options = optionRepository.findByProductId(productUuid);
+    logger.info("Getting {} options for product {}", options.size(), productUuid);
+    return options.stream().map(opt -> modelMapper.map(opt, OptionOutputDto.class)).toList();
+  }
+  public List<OptionOutputDto> updateOptions(UUID productUuid, List<OptionInputDto> optionsDto)
+      throws EntityNotFoundException {
+
+    List<Option> options = optionRepository.findByProductId(productUuid);
+    for(Option option : options) {
+      optionRepository.delete(option);
+    }
+
+    List<Option> savedOptions= new ArrayList<>();
+
+    for(OptionInputDto optionDto : optionsDto) {
+      Option option = modelMapper.map(optionDto, Option.class);
+      option.setProduct(
+        productRepository
+          .findById(productUuid)
+          .orElseThrow(() -> new EntityNotFoundException("Not found"))
+      );
+      savedOptions.add(optionRepository.save(option));
+    }
+
+    return savedOptions.stream()
+      .map(opt -> modelMapper.map(opt, OptionOutputDto.class))
+      .toList();
   }
 }

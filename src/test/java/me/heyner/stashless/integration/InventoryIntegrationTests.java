@@ -43,6 +43,7 @@ class InventoryIntegrationTests {
 
     inventoryRepository.deleteAll();
 
+
     skuRepository.deleteAll();
 
     optionRepository.deleteAll();
@@ -99,15 +100,15 @@ class InventoryIntegrationTests {
     return restTemplate.exchange(requestOptionCreation, OptionOutputDto.class);
   }
 
-  public ResponseEntity<SKUOutputDto> createSKU(UUID productUuid, UUID optionUuid) {
+  public ResponseEntity<SKUOutputDto> createSKU(UUID productUuid) {
+
     SKUInputDto skuInputDto =
         new SKUInputDto()
-            .setName("ADITSHIRT")
-            .setCostPrice(new BigDecimal("9.99"))
-            .setAmountAvailable(99L)
-            .setMarginPercentage(10)
-            .setOptionUUID(optionUuid)
-            .setOptionValue("Red");
+          .setName("ADITSHIRT")
+          .setCostPrice(new BigDecimal("9.99"))
+          .setAmountAvailable(99L)
+          .setMarginPercentage(10)
+          .setOptions(Map.of("Color", "Red"));
 
     RequestEntity<SKUInputDto> requestSKUCreation =
         RequestEntity.post("/users/test/products/" + productUuid + "/skus")
@@ -174,9 +175,7 @@ class InventoryIntegrationTests {
 
     ProductOutputDto createdProduct = createProduct().getBody();
 
-    OptionOutputDto createdOption = createOption(createdProduct.getId()).getBody();
-
-    SKUOutputDto createdSKU = createSKU(createdProduct.getId(), createdOption.getId()).getBody();
+    SKUOutputDto createdSKU = createSKU(createdProduct.getId()).getBody();
 
     InventoryItemInputDto inventoryItemInputDto =
         new InventoryItemInputDto().setQuantity(99).setSkuId(createdSKU.getId());
@@ -198,9 +197,7 @@ class InventoryIntegrationTests {
 
     ProductOutputDto createdProduct = createProduct().getBody();
 
-    OptionOutputDto createdOption = createOption(createdProduct.getId()).getBody();
-
-    SKUOutputDto createdSKU = createSKU(createdProduct.getId(), createdOption.getId()).getBody();
+    SKUOutputDto createdSKU = createSKU(createdProduct.getId()).getBody();
 
     InventoryItemInputDto inventoryItemInputDto =
         new InventoryItemInputDto().setQuantity(99).setSkuId(createdSKU.getId());

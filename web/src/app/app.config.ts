@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 
@@ -8,12 +8,11 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { requestedWithInterceptor } from './interceptor/requested-with.interceptor';
 import { withCredentialsInterceptor } from './interceptor/with-credentials.interceptor';
-import { error } from 'console';
 import { errorInterceptor } from './interceptor/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([requestedWithInterceptor, withCredentialsInterceptor, errorInterceptor]),

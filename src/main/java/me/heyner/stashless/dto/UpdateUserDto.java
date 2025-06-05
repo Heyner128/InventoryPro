@@ -1,6 +1,5 @@
 package me.heyner.stashless.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.validation.constraints.NotNull;

@@ -48,7 +48,6 @@ class OptionServiceTests {
         new Option()
             .setId(UUID.randomUUID())
             .setName("Color")
-            .setProduct(mockProduct)
             .setValues(List.of(new OptionValue().setId(1L).setValue("Red")));
   }
 
@@ -61,7 +60,5 @@ class OptionServiceTests {
     when(productRepository.save(mockProduct)).thenReturn(mockProduct);
 
     when(optionRepository.save(mockOption)).thenReturn(mockOption);
-
-    when(optionRepository.findByProduct_Id(mockProduct.getId())).thenReturn(List.of(mockOption));
   }
 }

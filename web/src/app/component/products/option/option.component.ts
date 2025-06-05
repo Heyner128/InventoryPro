@@ -1,4 +1,4 @@
-import { Component, input, InputSignal } from '@angular/core';
+import { Component, InputSignal, model } from '@angular/core';
 import { Option } from '../../../model/option';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
@@ -9,8 +9,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
   styleUrl: './option.component.scss'
 })
 export class OptionComponent {
-  [x: string]: any;
-  option: InputSignal<Option> = input.required();
+  option: InputSignal<Option> = model.required();
   optionForm = new FormGroup({
     optionValue: new FormControl(''),
   });

@@ -1,14 +1,12 @@
-import type { Option } from './option';
+import type { NewSKU, SKU } from './sku';
 
 export type Item = {
-    skuId: string;
-    skuName: string;
-    brand: string;
-    costPrice: number;
-    amountAvailable: number;
-    marginPercentage: number;
-    option: Option;
-    quantity: number;
-    createdAt: Date;
-    updatedAt: Date;
+  sku: SKU;
+  quantity: number;
 }
+
+
+export type NewItem = Omit<
+  NewSKU,
+  "id" | "createdAt" | "updatedAt"
+> & { quantity: number }; 

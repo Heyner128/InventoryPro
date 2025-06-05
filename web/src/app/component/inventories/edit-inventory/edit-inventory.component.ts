@@ -1,18 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoriesService } from '../../../service/inventories.service';
 import { Inventory } from '../../../model/inventory';
-import { catchError } from 'rxjs/operators';
-import { EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-details',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './edit.component.html',
-  styleUrl: './edit.component.scss'
+  templateUrl: './edit-inventory.component.html',
+  styleUrl: './edit-inventory.component.scss'
 })
-export class EditComponent implements OnInit {
+export class EditInventoryComponent implements OnInit {
   inventoryId: string | undefined;
   inventoryForm = new FormGroup({
     name: new FormControl(''),
@@ -24,7 +22,8 @@ export class EditComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly inventoriesService: InventoriesService
+    private readonly inventoriesService: InventoriesService,
+    private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -41,6 +40,7 @@ export class EditComponent implements OnInit {
               name: inventory.name,
               description: inventory.description,
             });
+            this.changeDetectorRef.detectChanges();
           },
           error: () => {
             this.router.navigate(["/error"], {

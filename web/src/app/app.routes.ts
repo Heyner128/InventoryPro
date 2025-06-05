@@ -3,14 +3,14 @@ import { LoginComponent } from './component/login/login.component';
 import { LayoutComponent } from './component/layout/layout.component';
 import { loginGuard } from './guard/login.guard';
 import { InventoriesComponent } from './component/inventories/inventories.component';
-import { CreateComponent as InventoriesCreateComponent } from './component/inventories/create/create.component';
-import { EditComponent as InventoriesDetailsComponent } from './component/inventories/edit/edit.component';
+import { CreateInventoryComponent  } from './component/inventories/create-inventory/create-inventory.component';
+import { EditInventoryComponent  } from './component/inventories/edit-inventory/edit-inventory.component';
 import { HomeComponent } from './component/home/home.component';
 import { SignupComponent } from './component/signup/signup.component';
 import { ErrorComponent } from './component/error/error.component';
 import { ProductsComponent } from './component/products/products.component';
-import { CreateComponent as ProductsCreateComponent } from './component/products/create/create.component';
-import { EditComponent as ProductsEditComponent } from './component/products/edit/edit.component';
+import { CreateProductComponent  } from './component/products/create-product/create-product.component';
+import { EditProductComponent  } from './component/products/edit-product/edit-product.component';
 
 export const routes: Routes = [
   {
@@ -36,11 +36,11 @@ export const routes: Routes = [
       },
       {
         path: 'inventories/create',
-        component: InventoriesCreateComponent,
+        component: CreateInventoryComponent,
       },
       {
         path: 'inventories/:id',
-        component: InventoriesDetailsComponent,
+        component: EditInventoryComponent,
       },
       {
         path: 'products',
@@ -48,16 +48,16 @@ export const routes: Routes = [
       },
       {
         path: 'products/create',
-        component: ProductsCreateComponent
+        component: CreateProductComponent
       },
       {
         path: 'products/:id',
-        component: ProductsEditComponent
+        component: EditProductComponent
       },
       {
         path: 'error',
         component: ErrorComponent,
       }
     ],
-  },
+  }
 ];
